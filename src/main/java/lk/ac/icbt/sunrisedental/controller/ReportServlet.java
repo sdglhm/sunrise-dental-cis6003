@@ -1,0 +1,4 @@
+package lk.ac.icbt.sunrisedental.controller;
+
+import jakarta.servlet.annotation.WebServlet; import jakarta.servlet.http.*; import lk.ac.icbt.sunrisedental.dao.JdbcReportDao; import lk.ac.icbt.sunrisedental.util.JsonResponse; import java.io.IOException;
+@WebServlet("/api/reports/*") public class ReportServlet extends HttpServlet { private final JdbcReportDao reports=new JdbcReportDao(); protected void doGet(HttpServletRequest q,HttpServletResponse p)throws IOException { try { String path=q.getPathInfo(); if("/daily".equals(path))JsonResponse.write(p,200,reports.daily(q.getParameter("date"))); else if("/dentists".equals(path))JsonResponse.write(p,200,reports.dentists()); else if("/treatments".equals(path))JsonResponse.write(p,200,reports.treatments()); else if("/revenue".equals(path))JsonResponse.write(p,200,reports.revenue()); else JsonResponse.error(p,404,"Report not found"); }catch(Exception e){JsonResponse.error(p,500,"Could not create report");} } }
