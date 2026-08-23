@@ -1,0 +1,13 @@
+package lk.ac.icbt.sunrisedental.controller;
+
+import jakarta.servlet.annotation.WebServlet; import jakarta.servlet.http.*;
+import lk.ac.icbt.sunrisedental.dto.AppointmentRequest; import lk.ac.icbt.sunrisedental.exception.*; import lk.ac.icbt.sunrisedental.util.*;
+import java.io.IOException; import java.time.LocalDate; import java.util.Map;
+
+@WebServlet("/api/appointments/*") public class AppointmentServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest q,HttpServletResponse p)throws IOException { try { String path=q.getPathInfo(); String[] parts=path==null?new String[0]:path.split("/"); if(path==null||"/".equals(path))JsonResponse.write(p,200,AppServices.appointments().list(date(q.getParameter("date")),number(q.getParameter("dentistId")))); else if(parts.length==3&&"bill-preview".equals(parts[2]))JsonResponse.write(p,200,AppServices.billing().preview(parts[1])); else JsonResponse.write(p,200,AppServices.appointments().get(part(path))); }catch(NotFoundException e){JsonResponse.error(p,404,e.getMessage());}catch(Exception e){JsonResponse.error(p,400,e.getMessage());} }
+    protected void doPost(HttpServletRequest q,HttpServletResponse p)throws IOException { try { String[] parts=q.getPathInfo()==null?new String[0]:q.getPathInfo().split("/"); if(parts.length==3&&"bill".equals(parts[2]))JsonResponse.write(p,201,AppServices.billing().generate(parts[1]));else JsonResponse.write(p,201,AppServices.appointments().create(JsonResponse.body(q,AppointmentRequest.class))); }catch(ValidationException e){JsonResponse.error(p,422,e.getMessage());}catch(NotFoundException e){JsonResponse.error(p,404,e.getMessage());}catch(Exception e){JsonResponse.error(p,400,"Invalid request");} }
+    protected void doPut(HttpServletRequest q,HttpServletResponse p)throws IOException { try { JsonResponse.write(p,200,AppServices.appointments().update(part(q.getPathInfo()),JsonResponse.body(q,AppointmentRequest.class))); }catch(NotFoundException e){JsonResponse.error(p,404,e.getMessage());}catch(ValidationException e){JsonResponse.error(p,422,e.getMessage());}catch(Exception e){JsonResponse.error(p,400,"Invalid request");} }
+    protected void doDelete(HttpServletRequest q,HttpServletResponse p)throws IOException { try { AppServices.appointments().cancel(part(q.getPathInfo()));JsonResponse.write(p,200,Map.of("message","Appointment cancelled")); }catch(NotFoundException e){JsonResponse.error(p,404,e.getMessage());} }
+    private String part(String path){return path.substring(1).split("/")[0];} private LocalDate date(String v){return v==null||v.isBlank()?null:LocalDate.parse(v);} private Long number(String v){return v==null||v.isBlank()?null:Long.parseLong(v);}
+}
