@@ -1,0 +1,4 @@
+package lk.ac.icbt.sunrisedental.filter;
+
+import jakarta.servlet.*; import jakarta.servlet.annotation.WebFilter; import jakarta.servlet.http.*; import lk.ac.icbt.sunrisedental.util.JsonResponse; import java.io.IOException;
+@WebFilter("/api/*") public class AuthenticationFilter implements Filter { public void doFilter(ServletRequest request,ServletResponse response,FilterChain chain)throws IOException,ServletException { HttpServletRequest q=(HttpServletRequest)request; if(q.getRequestURI().endsWith("/api/auth/login")||q.getRequestURI().endsWith("/api/auth/logout")){chain.doFilter(request,response);return;} HttpSession s=q.getSession(false);if(s==null||s.getAttribute("user")==null){JsonResponse.error((HttpServletResponse)response,401,"Authentication required");return;}chain.doFilter(request,response); } }
