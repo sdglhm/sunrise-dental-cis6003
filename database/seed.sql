@@ -1,5 +1,3 @@
-USE sunrise_dental;
-
 -- Demonstration login: username staff, password staff123. Change this after setup.
 -- The stored value is a PBKDF2 hash, never a plain-text password.
 INSERT INTO users (username, password_hash, full_name) VALUES

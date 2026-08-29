@@ -4,7 +4,7 @@ import lk.ac.icbt.sunrisedental.util.DatabaseConnectionFactory;
 import java.sql.*; import java.util.*;
 
 public class JdbcReportDao {
-    public List<Map<String,Object>> daily(String date) { return query("SELECT appointment_date AS date, COUNT(*) AS appointments FROM appointments WHERE appointment_date=COALESCE(?,CURDATE()) AND status='ACTIVE' GROUP BY appointment_date", date); }
+    public List<Map<String,Object>> daily(String date) { return query("SELECT appointment_date AS date, COUNT(*) AS appointments FROM appointments WHERE appointment_date=COALESCE(CAST(? AS DATE),CURRENT_DATE) AND status='ACTIVE' GROUP BY appointment_date", date); }
     public List<Map<String,Object>> dentists() { return query("SELECT d.full_name AS dentist, COUNT(a.appointment_id) AS appointments FROM dentists d LEFT JOIN appointments a ON a.dentist_id=d.dentist_id AND a.status='ACTIVE' GROUP BY d.dentist_id,d.full_name ORDER BY appointments DESC", null); }
     public List<Map<String,Object>> treatments() { return query("SELECT t.treatment_name AS treatment, COUNT(a.appointment_id) AS appointments FROM treatments t LEFT JOIN appointments a ON a.treatment_id=t.treatment_id AND a.status='ACTIVE' GROUP BY t.treatment_id,t.treatment_name ORDER BY appointments DESC", null); }
     public List<Map<String,Object>> revenue() { return query("SELECT DATE(generated_at) AS date, COUNT(*) AS bills, COALESCE(SUM(total_amount),0) AS revenue FROM bills GROUP BY DATE(generated_at) ORDER BY date DESC", null); }
