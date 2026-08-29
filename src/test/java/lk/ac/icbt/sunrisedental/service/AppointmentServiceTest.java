@@ -31,7 +31,7 @@ class AppointmentServiceTest {
         assertThrows(ValidationException.class, () -> service.create(request));
     }
     private AppointmentRequest request() { return new AppointmentRequest("Nimal Perera", "Colombo", "0711111111", 1, 1, LocalDate.now().plusDays(1), LocalTime.of(10, 0)); }
-    private CatalogDao catalog() { return new CatalogDao() { public Optional<Dentist> findDentist(long id) { return Optional.of(dentist); } public Optional<Treatment> findTreatment(long id) { return Optional.of(treatment); } }; }
+    private CatalogDao catalog() { return new CatalogDao() { public Optional<Dentist> findDentist(long id) { return Optional.of(dentist); } public Optional<Treatment> findTreatment(long id) { return Optional.of(treatment); } public List<Dentist> findActiveDentists() { return List.of(dentist); } public List<Treatment> findActiveTreatments() { return List.of(treatment); } public Dentist saveDentist(String name) { return dentist; } public Treatment saveTreatment(String name, BigDecimal price) { return treatment; } }; }
     private static class StubAppointments implements AppointmentDao {
         private final boolean occupied; StubAppointments(boolean occupied) { this.occupied = occupied; }
         public Optional<Appointment> findByNumber(String n) { return Optional.empty(); }
