@@ -13,8 +13,10 @@ The system supports authorised staff login, appointment registration and managem
 | GET/PUT/DELETE | `/api/appointments/{number}` | Finds, edits or cancels an appointment |
 | GET | `/api/appointments/{number}/bill-preview` | Calculates a bill preview |
 | POST | `/api/appointments/{number}/bill` | Generates a bill |
+| GET/POST | `/api/catalog/dentists` | Lists active dentists or adds a dentist |
+| GET/POST | `/api/catalog/treatments` | Lists active treatments or adds a treatment |
 | GET | `/api/reports/daily`, `/dentists`, `/treatments`, `/revenue` | Returns report data |
 
 ## Technology
 
-Java 17, Maven WAR, Jakarta Servlets on Tomcat, MySQL 8 with JDBC, Jackson, JUnit 5 and vanilla HTML/CSS/JavaScript.
+Java 17, Maven WAR, Jakarta Servlets on Tomcat, JDBC, Jackson, JUnit 5 and vanilla HTML/CSS/JavaScript. The sibling demonstration project is configured for PostgreSQL 16; the original project remains configured for MySQL 8.
