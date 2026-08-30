@@ -30,6 +30,18 @@ class AppointmentServiceTest {
         AppointmentRequest request = new AppointmentRequest("Nimal", "Colombo", "0711111111", 1, 1, LocalDate.now().minusDays(1), LocalTime.NOON);
         assertThrows(ValidationException.class, () -> service.create(request));
     }
+    @Test void cancelsAnExistingAppointment() {
+        Appointment appointment = new Appointment(1, "APT-001", new Patient(1, "Nimal", "Colombo", "0711111111"), dentist, treatment, LocalDate.now().plusDays(1), LocalTime.NOON, AppointmentStatus.ACTIVE);
+        class CancellableAppointments extends StubAppointments {
+            boolean cancelled;
+            CancellableAppointments() { super(false); }
+            public Optional<Appointment> findByNumber(String number) { return Optional.of(appointment); }
+            public void cancel(String number) { cancelled = true; }
+        }
+        CancellableAppointments appointments = new CancellableAppointments();
+        new AppointmentService(appointments, catalog()).cancel("APT-001");
+        assertTrue(appointments.cancelled);
+    }
     private AppointmentRequest request() { return new AppointmentRequest("Nimal Perera", "Colombo", "0711111111", 1, 1, LocalDate.now().plusDays(1), LocalTime.of(10, 0)); }
     private CatalogDao catalog() { return new CatalogDao() { public Optional<Dentist> findDentist(long id) { return Optional.of(dentist); } public Optional<Treatment> findTreatment(long id) { return Optional.of(treatment); } public List<Dentist> findActiveDentists() { return List.of(dentist); } public List<Treatment> findActiveTreatments() { return List.of(treatment); } public Dentist saveDentist(String name) { return dentist; } public Treatment saveTreatment(String name, BigDecimal price) { return treatment; } }; }
     private static class StubAppointments implements AppointmentDao {
