@@ -1,1 +1,62 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sunrise Dental Clinic</title><link rel="stylesheet" href="assets/style.css"></head><body><main><h1>Sunrise Dental Clinic</h1><section id="login"><h2>Staff login</h2><form id="loginForm"><input name="username" placeholder="Username" required><input name="password" type="password" required><button>Log in</button></form><p id="loginError" class="error"></p></section><section id="app" class="hidden"><p>Signed in as <strong id="staff"></strong> · <button id="logout" class="no-print">Logout</button> · <a href="help.html">Help</a></p><h2 id="appointmentHeading">Register appointment</h2><form id="appointmentForm"><input name="patientName" placeholder="Patient name" required><input name="address" placeholder="Address" required><input name="contactNumber" placeholder="Contact number" required><select name="dentistId" id="dentistId" required><option value="">Select a dentist</option></select><select name="treatmentId" id="treatmentId" required><option value="">Select a treatment</option></select><input name="appointmentDate" type="date" required><input name="appointmentTime" type="time" required><button id="appointmentSubmit">Save appointment</button><button id="cancelEdit" type="button" class="hidden">Cancel edit</button></form><p id="message" class="error"></p><section class="catalogue"><h2>Doctors and treatments</h2><form id="dentistForm"><label>Add doctor<input name="fullName" placeholder="Doctor name" required></label><button>Add doctor</button></form><form id="treatmentForm"><label>Add treatment<input name="name" placeholder="Treatment name" required></label><label>Price (Rs.)<input name="price" type="number" min="0" step="0.01" required></label><button>Add treatment</button></form><p id="catalogueMessage" class="error"></p></section><section class="search"><h2>Find appointment</h2><form id="searchForm"><input name="appointmentNumber" placeholder="Appointment number" required><button>Search</button></form><div id="searchResult" class="hidden"></div><p id="searchMessage" class="error"></p></section><h2>Appointments</h2><form id="filterForm" class="filters"><label>Date<input name="date" type="date"></label><label>Dentist<select name="dentistId" id="filterDentist"><option value="">All dentists</option></select></label><button>Apply filters</button><button id="clearFilters" type="button">Clear filters</button></form><button id="load">Refresh list</button><table><thead><tr><th>No.</th><th>Patient</th><th>Dentist</th><th>Date/time</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table><section class="reports"><h2>Reports</h2><label>Daily report date<input id="reportDate" type="date"></label><div><button data-report="daily" type="button">Daily appointments</button><button data-report="dentists" type="button">Appointments by dentist</button><button data-report="treatments" type="button">Treatment popularity</button><button data-report="revenue" type="button">Revenue summary</button></div><div id="reportResult"></div><p id="reportMessage" class="error"></p></section></section></main><script src="assets/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Sunrise Dental Clinic</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main>
+    <h1>Sunrise Dental Clinic</h1>
+    <section id="login">
+        <h2>Staff login</h2>
+        <form id="loginForm"><input name="username" placeholder="Username" required><input name="password" type="password" required><button>Log in</button></form>
+        <p id="loginError" class="error"></p>
+    </section>
+    <section id="app" class="hidden">
+        <p>Signed in as <strong id="staff"></strong> · <button id="logout" class="no-print">Logout</button> · <a href="help.html">Help</a></p>
+        <h2 id="appointmentHeading">Register appointment</h2>
+        <form id="appointmentForm">
+            <input name="patientName" placeholder="Patient name" required><input name="address" placeholder="Address" required><input name="contactNumber" placeholder="Contact number" required>
+            <select name="dentistId" id="dentistId" required><option value="">Select a dentist</option></select><select name="treatmentId" id="treatmentId" required><option value="">Select a treatment</option></select>
+            <input name="appointmentDate" type="date" required><input name="appointmentTime" type="time" required>
+            <button id="appointmentSubmit">Save appointment</button><button id="cancelEdit" type="button" class="hidden">Cancel edit</button>
+        </form>
+        <p id="message" class="error"></p>
+        <section class="catalogue">
+            <h2>Doctors and treatments</h2>
+            <form id="dentistForm"><label>Add doctor<input name="fullName" placeholder="Doctor name" required></label><button>Add doctor</button></form>
+            <form id="treatmentForm"><label>Add treatment<input name="name" placeholder="Treatment name" required></label><label>Price (Rs.)<input name="price" type="number" min="0" step="0.01" required></label><button>Add treatment</button></form>
+            <p id="catalogueMessage" class="error"></p>
+        </section>
+        <section class="patients">
+            <h2>Patient management</h2>
+            <form id="patientForm">
+                <input name="fullName" placeholder="Patient name" required><input name="address" placeholder="Address" required><input name="contactNumber" placeholder="Contact number" required>
+                <button id="patientSubmit">Add patient</button><button id="cancelPatientEdit" type="button" class="hidden">Cancel edit</button>
+            </form>
+            <p id="patientMessage" class="error"></p>
+            <form id="patientSearchForm"><input name="search" placeholder="Search by patient name or contact number"><button>Find patients</button></form>
+            <table><thead><tr><th>Name</th><th>Address</th><th>Contact</th><th></th></tr></thead><tbody id="patientRows"></tbody></table>
+        </section>
+        <section class="search">
+            <h2>Find appointment</h2>
+            <form id="searchForm"><input name="appointmentNumber" placeholder="Appointment number" required><button>Search</button></form>
+            <div id="searchResult" class="hidden"></div><p id="searchMessage" class="error"></p>
+        </section>
+        <h2>Appointments</h2>
+        <form id="filterForm" class="filters"><label>Date<input name="date" type="date"></label><label>Dentist<select name="dentistId" id="filterDentist"><option value="">All dentists</option></select></label><button>Apply filters</button><button id="clearFilters" type="button">Clear filters</button></form>
+        <button id="load">Refresh list</button>
+        <table><thead><tr><th>No.</th><th>Patient</th><th>Dentist</th><th>Date/time</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table>
+        <section class="reports">
+            <h2>Reports</h2>
+            <label>Daily report date<input id="reportDate" type="date"></label>
+            <div><button data-report="daily" type="button">Daily appointments</button><button data-report="dentists" type="button">Appointments by dentist</button><button data-report="treatments" type="button">Treatment popularity</button><button data-report="revenue" type="button">Revenue summary</button></div>
+            <div id="reportResult"></div><p id="reportMessage" class="error"></p>
+        </section>
+    </section>
+</main>
+<script src="assets/app.js"></script>
+</body>
+</html>
