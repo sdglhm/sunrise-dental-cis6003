@@ -15,6 +15,8 @@ The system supports authorised staff login, appointment registration and managem
 | POST | `/api/appointments/{number}/bill` | Generates a bill |
 | GET/POST | `/api/catalog/dentists` | Lists active dentists or adds a dentist |
 | GET/POST | `/api/catalog/treatments` | Lists active treatments or adds a treatment |
+| GET/POST | `/api/patients` | Searches/lists or adds patients |
+| GET/PUT | `/api/patients/{id}` | Views or updates a patient |
 | GET | `/api/reports/daily`, `/dentists`, `/treatments`, `/revenue` | Returns report data |
 
 ## Technology

@@ -7,6 +7,7 @@ Tests use JUnit 5 and run with `mvn test`.
 | Connection setup | Singleton configuration factory |
 | Authentication | Valid credentials, invalid credentials and inactive users |
 | Appointment validation | Required fields, valid dates/times and identifiers |
+| Patient management | Required patient details and trimmed values |
 | Double booking | Service validation and database unique constraint |
 | Search and persistence | H2-backed JDBC test covers DAO save/find/update/filter/cancel behaviour |
 | Billing | `BigDecimal` treatment price, consultation fee and total |
