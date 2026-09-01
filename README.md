@@ -4,7 +4,7 @@ University Advanced Programming assessment project built with Java 17, Maven WAR
 
 ## Current status
 
-The core API, staff login, appointment registration, catalogue management, billing, reports and basic staff pages are implemented. Maven tests and WAR packaging pass locally. This sibling demonstration project is configured for PostgreSQL; the original project remains configured for MySQL 8.
+The core API, staff login, patient management, appointment registration, catalogue management, billing, reports and staff pages are implemented. Staff can add, find and update patients, then reuse an existing patient during appointment registration. Maven tests and WAR packaging pass locally. This sibling demonstration project is configured for PostgreSQL; the original project remains configured for MySQL 8.
 
 ## Prerequisites
 
