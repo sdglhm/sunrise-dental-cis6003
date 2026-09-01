@@ -11,8 +11,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class AppointmentService {
+    private static final Pattern CONTACT_NUMBER = Pattern.compile("^[0-9+ -]{7,20}$");
     private final AppointmentDao appointmentDao;
     private final CatalogDao catalogDao;
     private final PatientDao patientDao;
@@ -43,6 +45,7 @@ public class AppointmentService {
     private Patient patient(AppointmentRequest request) { return request.patientId() == null ? new Patient(0, request.patientName().trim(), request.address().trim(), request.contactNumber().trim()) : patientDao.findById(request.patientId()).orElseThrow(() -> new ValidationException("Patient not found")); }
     private void validate(AppointmentRequest r) {
         if (r == null || (r.patientId() == null && (blank(r.patientName()) || blank(r.address()) || blank(r.contactNumber())))) throw new ValidationException("Patient name, address and contact number are required");
+        if (r.patientId() == null && !CONTACT_NUMBER.matcher(r.contactNumber().trim()).matches()) throw new ValidationException("Enter a valid contact number");
         if (r.dentistId() <= 0 || r.treatmentId() <= 0 || r.appointmentDate() == null || r.appointmentTime() == null) throw new ValidationException("Dentist, treatment, date and time are required");
         if (r.appointmentDate().isBefore(LocalDate.now())) throw new ValidationException("Appointment date cannot be in the past");
     }

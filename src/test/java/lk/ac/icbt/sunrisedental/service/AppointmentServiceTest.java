@@ -30,6 +30,11 @@ class AppointmentServiceTest {
         AppointmentRequest request = new AppointmentRequest("Nimal", "Colombo", "0711111111", 1, 1, LocalDate.now().minusDays(1), LocalTime.NOON, null);
         assertThrows(ValidationException.class, () -> service.create(request));
     }
+    @Test void rejectsInvalidContactNumber() {
+        AppointmentService service = new AppointmentService(new StubAppointments(false), catalog(), patients());
+        AppointmentRequest request = new AppointmentRequest("Nimal", "Colombo", "invalid", 1, 1, LocalDate.now().plusDays(1), LocalTime.NOON, null);
+        assertThrows(ValidationException.class, () -> service.create(request));
+    }
     @Test void cancelsAnExistingAppointment() {
         Appointment appointment = new Appointment(1, "APT-001", new Patient(1, "Nimal", "Colombo", "0711111111"), dentist, treatment, LocalDate.now().plusDays(1), LocalTime.NOON, AppointmentStatus.ACTIVE);
         class CancellableAppointments extends StubAppointments {
