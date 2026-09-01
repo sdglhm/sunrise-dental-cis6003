@@ -5,6 +5,7 @@ import lk.ac.icbt.sunrisedental.dao.CatalogDao;
 import lk.ac.icbt.sunrisedental.dao.PatientDao;
 import lk.ac.icbt.sunrisedental.dto.AppointmentRequest;
 import lk.ac.icbt.sunrisedental.exception.NotFoundException;
+import lk.ac.icbt.sunrisedental.exception.ConflictException;
 import lk.ac.icbt.sunrisedental.exception.ValidationException;
 import lk.ac.icbt.sunrisedental.model.*;
 import java.time.LocalDate;
@@ -26,7 +27,7 @@ public class AppointmentService {
         validate(request);
         Dentist dentist = dentist(request.dentistId()); Treatment treatment = treatment(request.treatmentId());
         if (appointmentDao.hasActiveSlot(dentist.id(), request.appointmentDate(), request.appointmentTime(), null))
-            throw new ValidationException("Dentist already has an active appointment at this date and time");
+            throw new ConflictException("Dentist already has an active appointment at this date and time");
         Patient patient = patient(request);
         return appointmentDao.save(new Appointment(0, "APT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(), patient, dentist, treatment, request.appointmentDate(), request.appointmentTime(), AppointmentStatus.ACTIVE));
     }
@@ -34,7 +35,7 @@ public class AppointmentService {
         Appointment old = get(number); validate(request);
         Dentist dentist = dentist(request.dentistId()); Treatment treatment = treatment(request.treatmentId());
         if (old.status() == AppointmentStatus.ACTIVE && appointmentDao.hasActiveSlot(dentist.id(), request.appointmentDate(), request.appointmentTime(), number))
-            throw new ValidationException("Dentist already has an active appointment at this date and time");
+            throw new ConflictException("Dentist already has an active appointment at this date and time");
         return appointmentDao.update(new Appointment(old.id(), number, patient(request), dentist, treatment, request.appointmentDate(), request.appointmentTime(), old.status()));
     }
     public Appointment get(String number) { return appointmentDao.findByNumber(number).orElseThrow(() -> new NotFoundException("Appointment not found")); }

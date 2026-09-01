@@ -17,7 +17,7 @@ class AppointmentServiceTest {
         AppointmentDao appointments = new StubAppointments(true);
         AppointmentService service = new AppointmentService(appointments, catalog(), patients());
         AppointmentRequest request = request();
-        assertThrows(ValidationException.class, () -> service.create(request));
+        assertThrows(lk.ac.icbt.sunrisedental.exception.ConflictException.class, () -> service.create(request));
     }
     @Test void createsAppointmentWithGeneratedNumber() {
         AppointmentService service = new AppointmentService(new StubAppointments(false), catalog(), patients());
