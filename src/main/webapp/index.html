@@ -18,6 +18,7 @@
         <p>Signed in as <strong id="staff"></strong> · <button id="logout" class="no-print">Logout</button> · <a href="help.html">Help</a></p>
         <h2 id="appointmentHeading">Register appointment</h2>
         <form id="appointmentForm">
+            <select name="patientId" id="patientId"><option value="">Create new patient during appointment</option></select>
             <input name="patientName" placeholder="Patient name" required><input name="address" placeholder="Address" required><input name="contactNumber" placeholder="Contact number" required>
             <select name="dentistId" id="dentistId" required><option value="">Select a dentist</option></select><select name="treatmentId" id="treatmentId" required><option value="">Select a treatment</option></select>
             <input name="appointmentDate" type="date" required><input name="appointmentTime" type="time" required>
