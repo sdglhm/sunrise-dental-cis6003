@@ -1,13 +1,68 @@
 package lk.ac.icbt.sunrisedental.controller;
 
-import jakarta.servlet.annotation.WebServlet; import jakarta.servlet.http.*;
-import lk.ac.icbt.sunrisedental.dto.AppointmentRequest; import lk.ac.icbt.sunrisedental.exception.*; import lk.ac.icbt.sunrisedental.util.*;
-import java.io.IOException; import java.time.LocalDate; import java.util.Map;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lk.ac.icbt.sunrisedental.dto.AppointmentRequest;
+import lk.ac.icbt.sunrisedental.util.ApiErrorHandler;
+import lk.ac.icbt.sunrisedental.util.AppServices;
+import lk.ac.icbt.sunrisedental.util.JsonResponse;
 
-@WebServlet("/api/appointments/*") public class AppointmentServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest q,HttpServletResponse p)throws IOException { try { String path=q.getPathInfo(); String[] parts=path==null?new String[0]:path.split("/"); if(path==null||"/".equals(path))JsonResponse.write(p,200,AppServices.appointments().list(date(q.getParameter("date")),number(q.getParameter("dentistId")))); else if(parts.length==3&&"bill-preview".equals(parts[2]))JsonResponse.write(p,200,AppServices.billing().preview(parts[1])); else if(parts.length==3&&"bill".equals(parts[2]))JsonResponse.write(p,200,AppServices.billing().get(parts[1])); else JsonResponse.write(p,200,AppServices.appointments().get(part(path))); }catch(NotFoundException e){JsonResponse.error(p,404,e.getMessage());}catch(Exception e){JsonResponse.error(p,400,e.getMessage());} }
-    protected void doPost(HttpServletRequest q,HttpServletResponse p)throws IOException { try { String[] parts=q.getPathInfo()==null?new String[0]:q.getPathInfo().split("/"); if(parts.length==3&&"bill".equals(parts[2])){var result=AppServices.billing().generate(parts[1]);JsonResponse.write(p,result.created()?201:200,result.receipt());}else JsonResponse.write(p,201,AppServices.appointments().create(JsonResponse.body(q,AppointmentRequest.class))); }catch(ConflictException e){JsonResponse.error(p,409,e.getMessage());}catch(ValidationException e){JsonResponse.error(p,422,e.getMessage());}catch(NotFoundException e){JsonResponse.error(p,404,e.getMessage());}catch(Exception e){JsonResponse.error(p,400,"Invalid request");} }
-    protected void doPut(HttpServletRequest q,HttpServletResponse p)throws IOException { try { JsonResponse.write(p,200,AppServices.appointments().update(part(q.getPathInfo()),JsonResponse.body(q,AppointmentRequest.class))); }catch(ConflictException e){JsonResponse.error(p,409,e.getMessage());}catch(NotFoundException e){JsonResponse.error(p,404,e.getMessage());}catch(ValidationException e){JsonResponse.error(p,422,e.getMessage());}catch(Exception e){JsonResponse.error(p,400,"Invalid request");} }
-    protected void doDelete(HttpServletRequest q,HttpServletResponse p)throws IOException { try { AppServices.appointments().cancel(part(q.getPathInfo()));JsonResponse.write(p,200,Map.of("message","Appointment cancelled")); }catch(NotFoundException e){JsonResponse.error(p,404,e.getMessage());} }
-    private String part(String path){return path.substring(1).split("/")[0];} private LocalDate date(String v){return v==null||v.isBlank()?null:LocalDate.parse(v);} private Long number(String v){return v==null||v.isBlank()?null:Long.parseLong(v);}
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Map;
+
+@WebServlet("/api/appointments/*")
+public class AppointmentServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ApiErrorHandler.handle(response, () -> {
+            String path = request.getPathInfo();
+            String[] parts = path == null ? new String[0] : path.split("/");
+            if (path == null || "/".equals(path)) {
+                JsonResponse.write(response, 200, AppServices.appointments().list(date(request.getParameter("date")), number(request.getParameter("dentistId"))));
+            } else if (parts.length == 3 && "bill-preview".equals(parts[2])) {
+                JsonResponse.write(response, 200, AppServices.billing().preview(parts[1]));
+            } else if (parts.length == 3 && "bill".equals(parts[2])) {
+                JsonResponse.write(response, 200, AppServices.billing().get(parts[1]));
+            } else {
+                JsonResponse.write(response, 200, AppServices.appointments().get(part(path)));
+            }
+        });
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ApiErrorHandler.handle(response, () -> {
+            String[] parts = request.getPathInfo() == null ? new String[0] : request.getPathInfo().split("/");
+            if (parts.length == 3 && "bill".equals(parts[2])) {
+                var result = AppServices.billing().generate(parts[1]);
+                JsonResponse.write(response, result.created() ? 201 : 200, result.receipt());
+            } else {
+                JsonResponse.write(response, 201, AppServices.appointments().create(JsonResponse.body(request, AppointmentRequest.class)));
+            }
+        });
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ApiErrorHandler.handle(response, () -> JsonResponse.write(response, 200, AppServices.appointments().update(part(request.getPathInfo()), JsonResponse.body(request, AppointmentRequest.class))));
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ApiErrorHandler.handle(response, () -> {
+            AppServices.appointments().cancel(part(request.getPathInfo()));
+            JsonResponse.write(response, 200, Map.of("message", "Appointment cancelled"));
+        });
+    }
+
+    private String part(String path) {
+        if (path == null || path.length() < 2) throw new IllegalArgumentException("Appointment number is required");
+        return path.substring(1).split("/")[0];
+    }
+
+    private LocalDate date(String value) { return value == null || value.isBlank() ? null : LocalDate.parse(value); }
+    private Long number(String value) { return value == null || value.isBlank() ? null : Long.parseLong(value); }
 }

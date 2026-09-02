@@ -1,10 +1,57 @@
 package lk.ac.icbt.sunrisedental.controller;
 
-import jakarta.servlet.annotation.WebServlet; import jakarta.servlet.http.*;
-import lk.ac.icbt.sunrisedental.dto.LoginRequest; import lk.ac.icbt.sunrisedental.exception.ValidationException; import lk.ac.icbt.sunrisedental.model.User; import lk.ac.icbt.sunrisedental.util.*;
-import java.io.IOException; import java.util.Map;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import lk.ac.icbt.sunrisedental.dto.LoginRequest;
+import lk.ac.icbt.sunrisedental.exception.InvalidCredentialsException;
+import lk.ac.icbt.sunrisedental.exception.ValidationException;
+import lk.ac.icbt.sunrisedental.model.User;
+import lk.ac.icbt.sunrisedental.util.AppServices;
+import lk.ac.icbt.sunrisedental.util.JsonResponse;
 
-@WebServlet("/api/auth/*") public class AuthServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest req,HttpServletResponse resp)throws IOException { try { if("/login".equals(req.getPathInfo())) { LoginRequest login=JsonResponse.body(req,LoginRequest.class); User user=AppServices.authentication().authenticate(login.username(),login.password()); HttpSession s=req.getSession(true);s.setAttribute("user",user);JsonResponse.write(resp,200,Map.of("username",user.username(),"fullName",user.fullName())); } else if("/logout".equals(req.getPathInfo())) { HttpSession s=req.getSession(false);if(s!=null)s.invalidate();JsonResponse.write(resp,200,Map.of("message","Logged out")); } else JsonResponse.error(resp,404,"Endpoint not found"); } catch(ValidationException e){JsonResponse.error(resp,401,e.getMessage());} catch(Exception e){JsonResponse.error(resp,400,"Invalid request");} }
-    protected void doGet(HttpServletRequest req,HttpServletResponse resp)throws IOException { HttpSession s=req.getSession(false);User user=s==null?null:(User)s.getAttribute("user"); if(user==null)JsonResponse.error(resp,401,"Not authenticated");else JsonResponse.write(resp,200,Map.of("authenticated",true,"username",user.username(),"fullName",user.fullName())); }
+import java.io.IOException;
+import java.util.Map;
+
+@WebServlet("/api/auth/*")
+public class AuthServlet extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            if ("/login".equals(request.getPathInfo())) login(request, response);
+            else if ("/logout".equals(request.getPathInfo())) logout(request, response);
+            else JsonResponse.error(response, 404, "Endpoint not found");
+        } catch (ValidationException exception) {
+            JsonResponse.error(response, 400, exception.getMessage());
+        } catch (InvalidCredentialsException exception) {
+            JsonResponse.error(response, 401, exception.getMessage());
+        } catch (IOException exception) {
+            JsonResponse.error(response, 400, "Invalid request");
+        } catch (Exception exception) {
+            JsonResponse.error(response, 500, "The request could not be completed");
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession(false);
+        User user = session == null ? null : (User) session.getAttribute("user");
+        if (user == null) JsonResponse.error(response, 401, "Not authenticated");
+        else JsonResponse.write(response, 200, Map.of("authenticated", true, "username", user.username(), "fullName", user.fullName()));
+    }
+
+    private void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        LoginRequest login = JsonResponse.body(request, LoginRequest.class);
+        User user = AppServices.authentication().authenticate(login.username(), login.password());
+        HttpSession session = request.getSession(false);
+        if (session == null) session = request.getSession(true);
+        else request.changeSessionId();
+        session.setAttribute("user", user);
+        JsonResponse.write(response, 200, Map.of("username", user.username(), "fullName", user.fullName()));
+    }
+
+    private void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession(false);
+        if (session != null) session.invalidate();
+        JsonResponse.write(response, 200, Map.of("message", "Logged out"));
+    }
 }
