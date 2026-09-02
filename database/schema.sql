@@ -53,6 +53,7 @@ CREATE UNIQUE INDEX uq_active_dentist_slot
 
 CREATE TABLE bills (
     bill_id BIGSERIAL PRIMARY KEY,
+    bill_number VARCHAR(20) NOT NULL UNIQUE,
     appointment_id BIGINT NOT NULL UNIQUE,
     treatment_price DECIMAL(12,2) NOT NULL,
     consultation_fee DECIMAL(12,2) NOT NULL,
