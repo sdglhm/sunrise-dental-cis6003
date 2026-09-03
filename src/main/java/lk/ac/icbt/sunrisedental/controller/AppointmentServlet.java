@@ -8,6 +8,8 @@ import lk.ac.icbt.sunrisedental.dto.AppointmentRequest;
 import lk.ac.icbt.sunrisedental.util.ApiErrorHandler;
 import lk.ac.icbt.sunrisedental.util.AppServices;
 import lk.ac.icbt.sunrisedental.util.JsonResponse;
+import lk.ac.icbt.sunrisedental.service.AppointmentService;
+import lk.ac.icbt.sunrisedental.service.BillingService;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -15,19 +17,28 @@ import java.util.Map;
 
 @WebServlet("/api/appointments/*")
 public class AppointmentServlet extends HttpServlet {
+    private final AppointmentService appointments;
+    private final BillingService billing;
+
+    public AppointmentServlet() { this(AppServices.appointments(), AppServices.billing()); }
+    AppointmentServlet(AppointmentService appointments, BillingService billing) {
+        this.appointments = appointments;
+        this.billing = billing;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ApiErrorHandler.handle(response, () -> {
             String path = request.getPathInfo();
             String[] parts = path == null ? new String[0] : path.split("/");
             if (path == null || "/".equals(path)) {
-                JsonResponse.write(response, 200, AppServices.appointments().list(date(request.getParameter("date")), number(request.getParameter("dentistId"))));
+                JsonResponse.write(response, 200, appointments.list(date(request.getParameter("date")), number(request.getParameter("dentistId"))));
             } else if (parts.length == 3 && "bill-preview".equals(parts[2])) {
-                JsonResponse.write(response, 200, AppServices.billing().preview(parts[1]));
+                JsonResponse.write(response, 200, billing.preview(parts[1]));
             } else if (parts.length == 3 && "bill".equals(parts[2])) {
-                JsonResponse.write(response, 200, AppServices.billing().get(parts[1]));
+                JsonResponse.write(response, 200, billing.get(parts[1]));
             } else {
-                JsonResponse.write(response, 200, AppServices.appointments().get(part(path)));
+                JsonResponse.write(response, 200, appointments.get(part(path)));
             }
         });
     }
@@ -37,23 +48,23 @@ public class AppointmentServlet extends HttpServlet {
         ApiErrorHandler.handle(response, () -> {
             String[] parts = request.getPathInfo() == null ? new String[0] : request.getPathInfo().split("/");
             if (parts.length == 3 && "bill".equals(parts[2])) {
-                var result = AppServices.billing().generate(parts[1]);
+                var result = billing.generate(parts[1]);
                 JsonResponse.write(response, result.created() ? 201 : 200, result.receipt());
             } else {
-                JsonResponse.write(response, 201, AppServices.appointments().create(JsonResponse.body(request, AppointmentRequest.class)));
+                JsonResponse.write(response, 201, appointments.create(JsonResponse.body(request, AppointmentRequest.class)));
             }
         });
     }
 
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ApiErrorHandler.handle(response, () -> JsonResponse.write(response, 200, AppServices.appointments().update(part(request.getPathInfo()), JsonResponse.body(request, AppointmentRequest.class))));
+        ApiErrorHandler.handle(response, () -> JsonResponse.write(response, 200, appointments.update(part(request.getPathInfo()), JsonResponse.body(request, AppointmentRequest.class))));
     }
 
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ApiErrorHandler.handle(response, () -> {
-            AppServices.appointments().cancel(part(request.getPathInfo()));
+            appointments.cancel(part(request.getPathInfo()));
             JsonResponse.write(response, 200, Map.of("message", "Appointment cancelled"));
         });
     }

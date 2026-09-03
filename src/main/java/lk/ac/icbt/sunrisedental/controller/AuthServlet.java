@@ -8,12 +8,18 @@ import lk.ac.icbt.sunrisedental.exception.ValidationException;
 import lk.ac.icbt.sunrisedental.model.User;
 import lk.ac.icbt.sunrisedental.util.AppServices;
 import lk.ac.icbt.sunrisedental.util.JsonResponse;
+import lk.ac.icbt.sunrisedental.service.AuthenticationService;
 
 import java.io.IOException;
 import java.util.Map;
 
 @WebServlet("/api/auth/*")
 public class AuthServlet extends HttpServlet {
+    private final AuthenticationService authentication;
+
+    public AuthServlet() { this(AppServices.authentication()); }
+    AuthServlet(AuthenticationService authentication) { this.authentication = authentication; }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -41,7 +47,7 @@ public class AuthServlet extends HttpServlet {
 
     private void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         LoginRequest login = JsonResponse.body(request, LoginRequest.class);
-        User user = AppServices.authentication().authenticate(login.username(), login.password());
+        User user = authentication.authenticate(login.username(), login.password());
         HttpSession session = request.getSession(false);
         if (session == null) session = request.getSession(true);
         else request.changeSessionId();
