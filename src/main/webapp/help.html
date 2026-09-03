@@ -1,23 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Staff help - Sunrise Dental</title>
-    <link rel="stylesheet" href="assets/style.css">
-</head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Staff help - Sunrise Dental Clinic</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous"></head>
 <body>
-<main class="help-shell">
-    <header><p class="eyebrow">Sunrise Dental Clinic</p><h1>Staff help</h1><p>Quick guidance for the main clinic workflows.</p></header>
-    <div class="help-grid">
-        <section><h2>Sign in and out</h2><p>Use your staff username and password. Always log out from the sidebar when leaving the workstation.</p></section>
-        <section><h2>Register an appointment</h2><p>Enter the patient details, choose an active dentist and treatment, then select the appointment date and time.</p></section>
-        <section><h2>Search and review</h2><p>Search with the complete appointment number, or select an appointment from the table to open its details.</p></section>
-        <section><h2>Edit or cancel</h2><p>Open an active appointment to change its details. Cancellation keeps the record and releases the dentist time slot.</p></section>
-        <section><h2>Billing and printing</h2><p>Open the bill from appointment details. The system saves one bill per appointment and the receipt page can be printed from the browser.</p></section>
-        <section><h2>Reports</h2><p>Use the dashboard for today's summary. The reports section shows daily workload, dentist activity, treatments, and revenue.</p></section>
-    </div>
-    <p><a class="button-link" href="index.html">Back to workspace</a></p>
-</main>
-</body>
-</html>
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom"><div class="container"><a class="navbar-brand" href="appointments.html">Sunrise Dental</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="mainNav"><div class="navbar-nav me-auto"><a class="nav-link" href="appointments.html">Appointments</a><a class="nav-link" href="patients.html">Patients</a><a class="nav-link" href="catalog.html">Doctors &amp; treatments</a><a class="nav-link" href="register.html">Register appointment</a><a class="nav-link" href="reports.html">Reports</a><a class="nav-link active" aria-current="page" href="help.html">Help</a></div><span class="navbar-text me-3" data-staff-name></span><button class="btn btn-outline-secondary btn-sm" data-logout>Log out</button></div></div></nav>
+<main class="container py-4"><h1 class="h2">Staff help</h1><p class="text-body-secondary mb-4">Quick guidance for the main clinic workflows.</p><div id="message" class="d-none" role="status"></div><div class="row g-4">
+    <section class="col-md-6"><h2 class="h4">Register an appointment</h2><p>Open Register appointment, enter the patient details, choose an active dentist and treatment, then select the date and time.</p></section><section class="col-md-6"><h2 class="h4">Search and review</h2><p>Open Appointments and search with the complete appointment number, or select a row to view its details.</p></section><section class="col-md-6"><h2 class="h4">Edit or cancel</h2><p>Open an active appointment to change its details. Cancellation keeps the record and releases the dentist time slot.</p></section><section class="col-md-6"><h2 class="h4">Manage patients</h2><p>Open Patients to find a patient by name or contact number and update their contact details.</p></section><section class="col-md-6"><h2 class="h4">Billing</h2><p>Open the bill from appointment details. The system stores one bill per appointment and provides a printable receipt.</p></section><section class="col-md-6"><h2 class="h4">Reports</h2><p>Open Reports to review the daily summary, dentist activity, treatments, and revenue.</p></section>
+</div></main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script><script src="assets/common.js"></script><script>Clinic.ready().catch(exception => Clinic.showMessage(exception.message, true));</script>
+</body></html>

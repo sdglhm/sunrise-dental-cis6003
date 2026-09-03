@@ -5,8 +5,10 @@ import lk.ac.icbt.sunrisedental.dao.PatientDao;
 import lk.ac.icbt.sunrisedental.exception.NotFoundException;
 import lk.ac.icbt.sunrisedental.exception.ValidationException;
 import lk.ac.icbt.sunrisedental.model.Patient;
+import java.util.regex.Pattern;
 
 public class PatientService {
+    private static final Pattern CONTACT_NUMBER = Pattern.compile("^[0-9+ -]{7,20}$");
     private final PatientDao patients;
 
     public PatientService(PatientDao patients) { this.patients = patients; }
@@ -17,6 +19,7 @@ public class PatientService {
 
     private Patient validPatient(long id, String fullName, String address, String contactNumber) {
         if (blank(fullName) || blank(address) || blank(contactNumber)) throw new ValidationException("Patient name, address and contact number are required");
+        if (!CONTACT_NUMBER.matcher(contactNumber.trim()).matches()) throw new ValidationException("Enter a valid contact number");
         return new Patient(id, fullName.trim(), address.trim(), contactNumber.trim());
     }
     private boolean blank(String value) { return value == null || value.isBlank(); }

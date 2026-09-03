@@ -1,129 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="theme-color" content="#176b5b">
-    <title>Sunrise Dental Clinic</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Staff login - Sunrise Dental Clinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
-<body>
-<section id="login" class="login-shell">
-    <div class="login-intro">
-        <span class="brand-mark" aria-hidden="true">S</span>
-        <p class="eyebrow">Sunrise Dental Clinic</p>
-        <h1>Care starts with a well-run day.</h1>
-        <p>Manage appointments, billing, and daily clinic reporting from one secure staff workspace.</p>
-    </div>
-    <div class="login-panel">
-        <form id="loginForm" class="stack-form">
-            <div>
-                <p class="eyebrow">Staff access</p>
-                <h2>Sign in</h2>
-            </div>
-            <label>Username<input name="username" autocomplete="username" required></label>
-            <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
-            <button type="submit">Log in</button>
-            <p id="loginError" class="form-message error" aria-live="polite"></p>
-        </form>
-    </div>
-</section>
-
-<div id="app" class="app-shell hidden">
-    <aside class="sidebar no-print">
-        <a class="brand" href="#dashboard"><span class="brand-mark" aria-hidden="true">S</span><span>Sunrise Dental<small>Staff workspace</small></span></a>
-        <nav aria-label="Primary navigation">
-            <a href="#dashboard">Dashboard</a>
-            <a href="#newAppointment">New appointment</a>
-            <a href="#appointments">Appointments</a>
-            <a href="#reports">Reports</a>
-            <a href="help.html">Help</a>
-        </nav>
-        <div class="staff-card">
-            <span>Signed in as</span>
-            <strong id="staff"></strong>
-            <button id="logout" class="button-secondary" type="button">Log out</button>
+<body class="bg-light">
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-9 col-md-6 col-lg-4">
+            <header class="text-center mb-4"><h1 class="h3">Sunrise Dental Clinic</h1><p class="text-body-secondary">Staff sign in</p></header>
+            <form id="loginForm" class="card card-body shadow-sm">
+                <div class="mb-3"><label class="form-label" for="username">Username</label><input class="form-control" id="username" name="username" autocomplete="username" required></div>
+                <div class="mb-3"><label class="form-label" for="password">Password</label><input class="form-control" id="password" name="password" type="password" autocomplete="current-password" required></div>
+                <button class="btn btn-primary" type="submit">Log in</button>
+                <div id="loginError" class="alert alert-danger mt-3 mb-0 d-none" role="alert"></div>
+            </form>
         </div>
-    </aside>
-
-    <main class="workspace">
-        <header class="page-header">
-            <div><p class="eyebrow">Clinic overview</p><h1>Good morning</h1></div>
-            <a class="button-link" href="#newAppointment">New appointment</a>
-        </header>
-
-        <p id="message" class="app-message" aria-live="polite"></p>
-
-        <section id="dashboard" class="section-block">
-            <div class="section-heading"><h2>Today at a glance</h2><p>Live figures from the clinic database.</p></div>
-            <div class="metrics">
-                <article><span>Today's appointments</span><strong id="todayAppointments">0</strong></article>
-                <article><span>Active appointments</span><strong id="activeAppointments">0</strong></article>
-                <article><span>Cancelled</span><strong id="cancelledAppointments">0</strong></article>
-                <article><span>Bills today</span><strong id="billsToday">0</strong></article>
-                <article class="metric-wide"><span>Today's revenue</span><strong id="revenueToday">Rs. 0.00</strong></article>
-            </div>
-        </section>
-
-        <section id="newAppointment" class="section-block form-section">
-            <div class="section-heading"><h2>Register an appointment</h2><p>Enter the patient details and reserve an available dentist time.</p></div>
-            <form id="appointmentForm" class="form-grid">
-                <label>Patient name<input name="patientName" autocomplete="name" required></label>
-                <label>Contact number<input name="contactNumber" type="tel" autocomplete="tel" placeholder="071 234 5678" required></label>
-                <label class="full-width">Address<input name="address" autocomplete="street-address" required></label>
-                <label>Dentist<select name="dentistId" id="dentistId" required><option value="">Choose a dentist</option></select></label>
-                <label>Treatment<select name="treatmentId" id="treatmentId" required><option value="">Choose a treatment</option></select></label>
-                <label>Appointment date<input id="appointmentDate" name="appointmentDate" type="date" required></label>
-                <label>Appointment time<input name="appointmentTime" type="time" required></label>
-                <div class="form-actions full-width"><button type="submit">Save appointment</button><button type="reset" class="button-secondary">Clear</button></div>
-            </form>
-        </section>
-
-        <section id="appointments" class="section-block">
-            <div class="section-heading"><h2>Appointments</h2><p>Search by appointment number or select a row to view its details.</p></div>
-            <form id="searchForm" class="inline-form">
-                <label><span>Appointment number</span><input name="appointmentNumber" placeholder="APT-XXXXXXXX" required></label>
-                <button type="submit">Search</button>
-                <button id="load" class="button-secondary" type="button">Refresh list</button>
-            </form>
-
-            <section id="appointmentDetail" class="detail-panel hidden" aria-labelledby="detailTitle">
-                <div class="detail-heading"><h3 id="detailTitle">Appointment details</h3><div id="appointmentActions" class="form-actions"><button id="editAppointment" type="button">Edit</button><button id="cancelAppointment" class="button-danger" type="button">Cancel</button></div></div>
-                <dl id="appointmentDetails"></dl>
-            </section>
-
-            <section id="editPanel" class="detail-panel hidden" aria-labelledby="editTitle">
-                <h3 id="editTitle">Edit appointment</h3>
-                <form id="editForm" class="form-grid">
-                    <label>Patient name<input name="patientName" required></label>
-                    <label>Contact number<input name="contactNumber" type="tel" required></label>
-                    <label class="full-width">Address<input name="address" required></label>
-                    <label>Dentist<select name="dentistId" id="editDentistId" required><option value="">Choose a dentist</option></select></label>
-                    <label>Treatment<select name="treatmentId" id="editTreatmentId" required><option value="">Choose a treatment</option></select></label>
-                    <label>Appointment date<input id="editAppointmentDate" name="appointmentDate" type="date" required></label>
-                    <label>Appointment time<input name="appointmentTime" type="time" required></label>
-                    <div class="form-actions full-width"><button type="submit">Save changes</button><button id="closeEdit" class="button-secondary" type="button">Close</button></div>
-                </form>
-            </section>
-
-            <div class="table-wrap"><table><thead><tr><th>Number</th><th>Patient</th><th>Dentist</th><th>Date and time</th><th>Status</th></tr></thead><tbody id="rows"><tr><td colspan="5">Loading appointments...</td></tr></tbody></table></div>
-        </section>
-
-        <section id="reports" class="section-block">
-            <div class="section-heading"><h2>Clinic reports</h2><p>Review workload, treatment activity, and billed revenue.</p></div>
-            <form id="dailyReportForm" class="inline-form">
-                <label><span>Daily report date</span><input id="reportDate" name="date" type="date"></label>
-                <button type="submit">Update reports</button>
-            </form>
-            <div class="report-grid">
-                <section><h3>Daily appointments</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Appointments</th></tr></thead><tbody id="dailyReportRows"></tbody></table></div></section>
-                <section><h3>Dentist appointments</h3><div class="table-wrap"><table><thead><tr><th>Dentist</th><th>Appointments</th></tr></thead><tbody id="dentistReportRows"></tbody></table></div></section>
-                <section><h3>Treatment activity</h3><div class="table-wrap"><table><thead><tr><th>Treatment</th><th>Appointments</th></tr></thead><tbody id="treatmentReportRows"></tbody></table></div></section>
-                <section><h3>Revenue</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Bills</th><th>Revenue</th></tr></thead><tbody id="revenueReportRows"></tbody></table></div></section>
-            </div>
-        </section>
-    </main>
-</div>
-<script src="assets/app.js"></script>
+    </div>
+</main>
+<script src="assets/login.js"></script>
 </body>
 </html>

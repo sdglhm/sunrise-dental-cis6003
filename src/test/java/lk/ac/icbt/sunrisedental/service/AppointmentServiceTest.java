@@ -52,6 +52,16 @@ class AppointmentServiceTest {
         Appointment appointment = service.create(new AppointmentRequest(null, null, null, 1, 1, LocalDate.now().plusDays(1), LocalTime.of(11, 0), 8L));
         assertEquals(8L, appointment.patient().id());
     }
+    @Test void keepsThePatientIdWhenUpdatingDetails() {
+        Appointment original = new Appointment(1, "APT-001", new Patient(7, "Nimal", "Colombo", "0711111111"), dentist, treatment, LocalDate.now().plusDays(1), LocalTime.NOON, AppointmentStatus.ACTIVE);
+        AppointmentDao appointments = new StubAppointments(false) {
+            public Optional<Appointment> findByNumber(String number) { return Optional.of(original); }
+        };
+        AppointmentRequest changes = new AppointmentRequest("Asha", "Kandy", "0772223333", 1, 1, LocalDate.now().plusDays(2), LocalTime.of(14, 0), null);
+        Appointment updated = new AppointmentService(appointments, catalog(), patients()).update("APT-001", changes);
+        assertEquals(7L, updated.patient().id());
+        assertEquals("Asha", updated.patient().fullName());
+    }
     private AppointmentRequest request() { return new AppointmentRequest("Nimal Perera", "Colombo", "0711111111", 1, 1, LocalDate.now().plusDays(1), LocalTime.of(10, 0), null); }
     private CatalogDao catalog() { return new CatalogDao() { public Optional<Dentist> findDentist(long id) { return Optional.of(dentist); } public Optional<Treatment> findTreatment(long id) { return Optional.of(treatment); } public List<Dentist> findActiveDentists() { return List.of(dentist); } public List<Treatment> findActiveTreatments() { return List.of(treatment); } public Dentist saveDentist(String name) { return dentist; } public Treatment saveTreatment(String name, BigDecimal price) { return treatment; } }; }
     private PatientDao patients() { return new PatientDao() { public Optional<Patient> findById(long id) { return Optional.of(new Patient(id, "Asha", "Kandy", "071")); } public List<Patient> findAll(String search) { return List.of(); } public Patient save(Patient patient) { return patient; } public Patient update(Patient patient) { return patient; } }; }

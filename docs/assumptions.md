@@ -2,7 +2,7 @@
 
 - Clinic staff is the only implemented role. Every authenticated staff user has access to appointment, billing, and report functions.
 - Apache Tomcat 10.1+ is used because the application uses Jakarta Servlet 6.
-- PostgreSQL 8 is the persistent database for this implementation.
+- PostgreSQL 16 is the persistent database for this implementation.
 - Passwords are stored as salted PBKDF2 hashes and invalid or inactive accounts receive the same login error.
 - Patient contact numbers may contain digits, spaces, one leading plus sign, and hyphens within the supported length.
 - Appointment dates cannot be in the past. Clinic working hours are not restricted beyond a valid time value.

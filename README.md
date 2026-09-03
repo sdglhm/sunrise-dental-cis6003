@@ -11,7 +11,7 @@ A Java web application for clinic staff to manage appointments, persistent bills
 - PostgreSQL 16 with JDBC
 - Jackson JSON
 - JUnit 5 and Mockito
-- Vanilla HTML, CSS, and JavaScript
+- Bootstrap 5.3.8 with vanilla HTML and JavaScript
 
 ## Prerequisites
 
@@ -47,11 +47,13 @@ Deploy `target/sunrise-dental.war` to Tomcat, then open the application context 
 ## Staff workflows
 
 - Secure login, session checking, and logout
+- Separate pages for appointments, patients, doctors and treatments, registration, reports, and help
+- Patient directory, search, and contact-detail editing
 - Catalog-backed appointment registration
 - Appointment search, detail, editing, and cancellation
 - Dentist double-booking protection
 - Persistent, itemized bill generation and browser printing
-- Dashboard summary and daily, dentist, treatment, and revenue reports
+- Report summary and daily, dentist, treatment, and revenue reports
 - Contextual success, validation, empty, and loading states
 - Staff help page
 
@@ -64,12 +66,16 @@ Deploy `target/sunrise-dental.war` to Tomcat, then open the application context 
 | GET | `/api/auth/session` | Return the current session |
 | GET | `/api/catalog/dentists` | List active dentists |
 | GET | `/api/catalog/treatments` | List active treatments |
+| POST | `/api/catalog/dentists` | Add a dentist |
+| POST | `/api/catalog/treatments` | Add a treatment |
+| GET, POST | `/api/patients` | List or add patients |
+| GET, PUT | `/api/patients/{id}` | View or update a patient |
 | GET, POST | `/api/appointments` | List or create appointments |
 | GET, PUT, DELETE | `/api/appointments/{number}` | View, update, or cancel an appointment |
 | GET | `/api/appointments/{number}/bill-preview` | Calculate a preview |
 | GET | `/api/appointments/{number}/bill` | Retrieve a generated bill |
 | POST | `/api/appointments/{number}/bill` | Generate or retrieve a bill |
-| GET | `/api/reports/summary` | Return dashboard totals |
+| GET | `/api/reports/summary` | Return clinic summary totals |
 | GET | `/api/reports/daily` | Return a date-filtered daily report |
 | GET | `/api/reports/dentists` | Return dentist appointment totals |
 | GET | `/api/reports/treatments` | Return treatment totals |
@@ -92,3 +98,5 @@ src/test/java/            Service, controller, filter, and utility tests
 The tests use deterministic fakes, mocks, and an isolated H2 database for appointment DAO persistence. They do not connect to a production database. Run them with `mvn test`. The GitHub Actions workflow checks out the project, configures Temurin 17, runs `mvn clean test`, and packages the WAR. A hosted successful-run screenshot must come from the repository where the project is submitted; it is not fabricated here.
 
 The development history does not prove strict test-first ordering for every feature. The testing documents describe the evidence that genuinely exists.
+
+The browser interface uses the official Bootstrap CDN build and does not maintain a custom clinic stylesheet. A network connection is therefore required for Bootstrap styling unless the compiled framework files are hosted locally later.

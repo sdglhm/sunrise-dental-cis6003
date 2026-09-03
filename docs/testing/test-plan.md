@@ -16,8 +16,9 @@ The Git history contains tests alongside several feature implementations. It doe
 | Appointment service | Creation, generated number, past date, contact validation, inactive catalog, lookup, missing record, conflict, update, cancellation |
 | Appointment HTTP | Retrieve, create, update, cancel, conflict 409, billing route, controlled 500 |
 | Billing service | Preview total, complete receipt, duplicate generation, cancelled appointment, invalid amounts, missing bill |
-| Reports | Date selection, invalid date, empty data, dashboard summary, report HTTP response |
+| Reports | Date selection, invalid date, empty data, clinic summary, report HTTP response |
 | Appointment DAO | Isolated H2 insert, read, update, and active-slot persistence |
+| Patient API | Patient listing and update response mapping |
 | Build | Java 17 compilation, test discovery, WAR packaging |
 
 ## Exclusions

@@ -2,9 +2,9 @@
 
 ## Three tiers
 
-The presentation tier contains the HTML, CSS, JavaScript, authentication filters, and Servlet HTTP entry points. Browser code renders data and sends JSON requests but does not execute SQL or decide booking and billing rules.
+The presentation tier contains separate HTML pages, Bootstrap components, JavaScript, authentication filters, and Servlet HTTP entry points. Browser code renders data and sends JSON requests but does not execute SQL or decide booking and billing rules.
 
-The application tier contains `AuthenticationService`, `AppointmentService`, `BillingService`, and `ReportService`. These classes enforce credentials, active catalog selections, dates, contact numbers, dentist availability, cancellation rules, billing calculations, and report input validation.
+The application tier contains `AuthenticationService`, `AppointmentService`, `PatientService`, `BillingService`, and `ReportService`. These classes enforce credentials, patient details, active catalog selections, dates, contact numbers, dentist availability, cancellation rules, billing calculations, and report input validation.
 
 The data tier contains DAO interfaces and JDBC implementations. SQL is kept in JDBC DAO classes, and `DatabaseConnectionFactory` centralizes the connection settings.
 

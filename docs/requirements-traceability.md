@@ -5,6 +5,7 @@
 | Login | Use case, login sequence | `AuthServlet`, `AuthenticationService`, `JdbcUserDao` | `POST /api/auth/login` | `users` | `AuthenticationServiceTest`, `AuthServletTest` | Login and validation screens |
 | Session protection | Login sequence | `AuthenticationFilter`, `ProtectedPageFilter` | All protected `/api/*` routes | N/A | `AuthenticationFilterTest`, `AuthServletTest` | Unauthorized API response |
 | Register appointment | Use case, registration sequence | `AppointmentServlet`, `AppointmentService`, `JdbcAppointmentDao` | `POST /api/appointments` | `patients`, `appointments` | Appointment service and Servlet creation tests | Registration form and confirmation |
+| Manage patients | Use case | `PatientServlet`, `PatientService`, `JdbcPatientDao` | `GET/POST /api/patients`, `PUT /api/patients/{id}` | `patients` | Patient service and Servlet tests | Patient list, search, add, and edit form |
 | Dentist availability | Registration sequence | `AppointmentService`, `JdbcAppointmentDao` | Appointment POST/PUT | Active-slot unique constraint | Duplicate-slot service test, 409 Servlet test | Conflict message |
 | Search/display | Use case | `AppointmentService`, appointment UI | `GET /api/appointments/{number}` | Appointment joins | Lookup/missing tests, Servlet retrieval test | Search and detail panel |
 | Edit appointment | Use case | `AppointmentService`, edit form | `PUT /api/appointments/{number}` | `patients`, `appointments` | Update service and Servlet tests | Edited detail panel |
@@ -12,7 +13,7 @@
 | Calculate bill | Use case, billing sequence | `BillingService`, `JdbcClinicSettingsDao` | Bill preview/generation | `treatments`, `clinic_settings` | Billing arithmetic and invalid-amount tests | Itemized receipt |
 | Generate/retrieve bill | Billing sequence | `BillingService`, `JdbcBillDao` | GET/POST appointment bill | `bills` | Receipt, duplicate, cancelled, missing-bill tests | Bill number and persisted receipt |
 | Print bill | Use case, billing sequence | `receipt.html`, `receipt.js` | Bill POST | `bills` | Billing response test | Browser print action |
-| Reports/dashboard | Use case | `ReportService`, `JdbcReportDao`, reports UI | Summary, daily, dentists, treatments, revenue | `appointments`, `bills` | `ReportServiceTest`, `ReportServletTest` | Dashboard and report tables |
+| Reports and summary | Use case | `ReportService`, `JdbcReportDao`, reports UI | Summary, daily, dentists, treatments, revenue | `appointments`, `bills` | `ReportServiceTest`, `ReportServletTest` | Summary figures and report tables |
 | Help | Use case | `help.html`, `ProtectedPageFilter` | N/A | N/A | Authentication filter coverage | Help page |
 | Logout | Use case, login sequence | `AuthServlet`, logout action | `POST /api/auth/logout` | N/A | Logout/session invalidation test | Returned login screen |
 | Web services | Sequence diagrams | Servlet controllers, `JsonResponse`, `ApiErrorHandler` | JSON API inventory | N/A | Controller/filter test suites | Browser network/API evidence |

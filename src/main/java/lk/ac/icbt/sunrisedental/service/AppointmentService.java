@@ -36,7 +36,10 @@ public class AppointmentService {
         Dentist dentist = dentist(request.dentistId()); Treatment treatment = treatment(request.treatmentId());
         if (old.status() == AppointmentStatus.ACTIVE && appointmentDao.hasActiveSlot(dentist.id(), request.appointmentDate(), request.appointmentTime(), number))
             throw new ConflictException("Dentist already has an active appointment at this date and time");
-        return appointmentDao.update(new Appointment(old.id(), number, patient(request), dentist, treatment, request.appointmentDate(), request.appointmentTime(), old.status()));
+        Patient patient = request.patientId() == null
+                ? new Patient(old.patient().id(), request.patientName().trim(), request.address().trim(), request.contactNumber().trim())
+                : patient(request);
+        return appointmentDao.update(new Appointment(old.id(), number, patient, dentist, treatment, request.appointmentDate(), request.appointmentTime(), old.status()));
     }
     public Appointment get(String number) { return appointmentDao.findByNumber(number).orElseThrow(() -> new NotFoundException("Appointment not found")); }
     public List<Appointment> list(LocalDate date, Long dentistId) { return appointmentDao.findAll(date, dentistId); }

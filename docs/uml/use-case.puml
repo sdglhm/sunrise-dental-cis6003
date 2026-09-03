@@ -10,6 +10,7 @@ rectangle "Sunrise Dental Clinic" {
   usecase "View appointment" as View
   usecase "Update appointment" as Update
   usecase "Cancel appointment" as Cancel
+  usecase "Manage patients" as Patients
   usecase "Calculate bill" as Calculate
   usecase "Generate bill" as Generate
   usecase "Print receipt" as Print
@@ -22,6 +23,7 @@ Staff --> Register
 Staff --> Search
 Staff --> Update
 Staff --> Cancel
+Staff --> Patients
 Staff --> Generate
 Staff --> Print
 Staff --> Reports

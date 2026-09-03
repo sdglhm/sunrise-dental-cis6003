@@ -4,13 +4,13 @@ const error = document.querySelector('#receiptError');
 const printButton = document.querySelector('#printReceipt');
 
 function item(label, value) {
-    const wrapper = document.createElement('div');
     const term = document.createElement('dt');
+    term.className = 'col-sm-4';
     const description = document.createElement('dd');
+    description.className = 'col-sm-8';
     term.textContent = label;
     description.textContent = value;
-    wrapper.append(term, description);
-    return wrapper;
+    return [term, description];
 }
 
 function currency(value) {
@@ -22,7 +22,7 @@ async function generateBill() {
     const response = await fetch(`api/appointments/${encodeURIComponent(number)}/bill`, {method: 'POST'});
     const bill = await response.json();
     if (!response.ok) throw Error(bill.error || 'Could not generate bill.');
-    receipt.replaceChildren(
+    receipt.replaceChildren(...[
         item('Bill number', bill.billNumber),
         item('Appointment', bill.appointmentNumber),
         item('Patient', bill.patientName),
@@ -32,12 +32,13 @@ async function generateBill() {
         item('Consultation fee', currency(bill.consultationFee)),
         item('Total', currency(bill.totalAmount)),
         item('Generated', new Date(bill.generatedAt).toLocaleString('en-LK'))
-    );
-    printButton.classList.remove('hidden');
+    ].flat());
+    printButton.classList.remove('d-none');
 }
 
 printButton.onclick = () => window.print();
 generateBill().catch(exception => {
     receipt.replaceChildren();
     error.textContent = exception.message;
+    error.classList.remove('d-none');
 });

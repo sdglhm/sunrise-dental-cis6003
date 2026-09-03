@@ -52,6 +52,18 @@ class AppointmentService {
   +cancel(number): void
   +list(date, dentistId): List
 }
+class PatientService {
+  +list(search): List
+  +get(id): Patient
+  +add(fullName, address, contactNumber): Patient
+  +update(id, fullName, address, contactNumber): Patient
+}
+class CatalogService {
+  +dentists(): List
+  +treatments(): List
+  +addDentist(fullName): Dentist
+  +addTreatment(name, price): Treatment
+}
 class BillingService {
   +preview(number): BillingPreview
   +generate(number): BillGeneration
@@ -73,6 +85,12 @@ interface AppointmentDao {
   +save(appointment): Appointment
   +update(appointment): Appointment
   +cancel(number): void
+}
+interface PatientDao {
+  +findAll(search): List
+  +findById(id): Optional
+  +save(patient): Patient
+  +update(patient): Patient
 }
 interface CatalogDao {
   +findDentist(id): Optional
@@ -99,6 +117,8 @@ Bill "0..1" --> "1" Appointment
 AuthenticationService --> UserDao
 AppointmentService --> AppointmentDao
 AppointmentService --> CatalogDao
+PatientService --> PatientDao
+CatalogService --> CatalogDao
 BillingService --> AppointmentService
 BillingService --> BillDao
 ReportService --> ReportDao

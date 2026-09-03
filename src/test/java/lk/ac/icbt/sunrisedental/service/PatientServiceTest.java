@@ -24,6 +24,12 @@ class PatientServiceTest {
         assertThrows(ValidationException.class, () -> service.add("Asha", "", "0711111111"));
     }
 
+    @Test
+    void rejectsAnInvalidContactNumber() {
+        PatientService service = new PatientService(new StubPatients());
+        assertThrows(ValidationException.class, () -> service.add("Asha", "Kandy", "invalid"));
+    }
+
     private static class StubPatients implements PatientDao {
         public Optional<Patient> findById(long id) { return Optional.of(new Patient(id, "Asha", "Kandy", "071")); }
         public List<Patient> findAll(String search) { return List.of(); }

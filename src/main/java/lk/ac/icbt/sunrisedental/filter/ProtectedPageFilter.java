@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/help.html", "/receipt.html"})
+@WebFilter(urlPatterns = {"/appointments.html", "/patients.html", "/catalog.html", "/register.html", "/reports.html", "/help.html", "/receipt.html"})
 public class ProtectedPageFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
