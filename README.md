@@ -1,25 +1,94 @@
-# Sunrise Dental Clinic Appointment & Patient Management System
+# Sunrise Dental Clinic
 
-University Advanced Programming assessment project built with Java 17, Maven WAR packaging, Jakarta Servlets, JDBC, Jackson and vanilla HTML/CSS/JavaScript.
+A Java web application for clinic staff to manage appointments, persistent bills, and operational reports through a browser interface and JSON API.
 
-## Current status
+## Technology
 
-The core API, staff login, patient management, appointment registration, catalogue management, billing, reports and staff pages are implemented. Staff can add, find and update patients, then reuse an existing patient during appointment registration. Maven tests and WAR packaging pass locally. This sibling demonstration project is configured for PostgreSQL; the original project remains configured for MySQL 8.
+- Java 17
+- Maven WAR packaging
+- Jakarta Servlet 6
+- Apache Tomcat 10.1+
+- PostgreSQL 16 with JDBC
+- Jackson JSON
+- JUnit 5 and Mockito
+- Vanilla HTML, CSS, and JavaScript
 
 ## Prerequisites
 
-- Java 17
+- JDK 17
 - Maven 3.9+
-- PostgreSQL 16 for this local demonstration project
-- Apache Tomcat 10.1+ (Jakarta Servlet 6 compatible)
+- PostgreSQL 16
+- Apache Tomcat 10.1+
 
-## Local setup
+## Database setup
 
-1. Run `database/schema.sql` then `database/seed.sql` in the selected database. The demonstration login is `staff` / `staff123`; change it after setup.
-2. Copy `src/main/resources/database.properties.example` to `database.properties` in the same directory and enter local credentials. This local file is ignored by Git.
-3. Run `mvn clean test`.
-4. Run `mvn package`; deploy `target/sunrise-dental.war` to Tomcat.
+For a fresh database, run `database/schema.sql` followed by `database/seed.sql` in PostgreSQL.
 
-## Design
+For a database created before persistent bill numbers and database-backed consultation fees were added, run `database/migrations/001_add_persistent_billing.sql` once.
 
-The project uses MVC, DAO, Service Layer and a small singleton connection factory. See `docs/architecture.md` for the intended boundaries.
+Copy `src/main/resources/database.properties.example` to `src/main/resources/database.properties` and provide local PostgreSQL credentials. The real properties file is ignored by Git.
+
+The local demonstration account is:
+
+- Username: `staff`
+- Password: `staff123`
+
+The seed stores a PBKDF2 hash, not the plain-text password. Change the account before using the application outside a demonstration environment.
+
+## Run and build
+
+```bash
+mvn clean test
+mvn clean package
+```
+
+Deploy `target/sunrise-dental.war` to Tomcat, then open the application context in a browser. This repository does not include local Tomcat deployment automation.
+
+## Staff workflows
+
+- Secure login, session checking, and logout
+- Catalog-backed appointment registration
+- Appointment search, detail, editing, and cancellation
+- Dentist double-booking protection
+- Persistent, itemized bill generation and browser printing
+- Dashboard summary and daily, dentist, treatment, and revenue reports
+- Contextual success, validation, empty, and loading states
+- Staff help page
+
+## API overview
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/api/auth/login` | Start a staff session |
+| POST | `/api/auth/logout` | Invalidate the session |
+| GET | `/api/auth/session` | Return the current session |
+| GET | `/api/catalog/dentists` | List active dentists |
+| GET | `/api/catalog/treatments` | List active treatments |
+| GET, POST | `/api/appointments` | List or create appointments |
+| GET, PUT, DELETE | `/api/appointments/{number}` | View, update, or cancel an appointment |
+| GET | `/api/appointments/{number}/bill-preview` | Calculate a preview |
+| GET | `/api/appointments/{number}/bill` | Retrieve a generated bill |
+| POST | `/api/appointments/{number}/bill` | Generate or retrieve a bill |
+| GET | `/api/reports/summary` | Return dashboard totals |
+| GET | `/api/reports/daily` | Return a date-filtered daily report |
+| GET | `/api/reports/dentists` | Return dentist appointment totals |
+| GET | `/api/reports/treatments` | Return treatment totals |
+| GET | `/api/reports/revenue` | Return billed revenue by date |
+
+## Project structure
+
+```text
+database/                 PostgreSQL schema, seed, and migrations
+docs/                     Requirements, architecture, testing, traceability, UML
+src/main/java/            Controllers, filters, services, DAOs, DTOs, models, utilities
+src/main/resources/       Database configuration template
+src/main/webapp/          Staff interface, help, receipt, and static assets
+src/test/java/            Service, controller, filter, and utility tests
+.github/workflows/        Maven CI workflow
+```
+
+## Testing and CI
+
+The tests use deterministic fakes, mocks, and an isolated H2 database for appointment DAO persistence. They do not connect to a production database. Run them with `mvn test`. The GitHub Actions workflow checks out the project, configures Temurin 17, runs `mvn clean test`, and packages the WAR. A hosted successful-run screenshot must come from the repository where the project is submitted; it is not fabricated here.
+
+The development history does not prove strict test-first ordering for every feature. The testing documents describe the evidence that genuinely exists.

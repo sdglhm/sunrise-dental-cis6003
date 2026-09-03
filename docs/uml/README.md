@@ -1,6 +1,6 @@
 # UML diagrams
 
-The PlantUML sources and SVG exports describe the implemented staff role, Servlet endpoints, services, DAOs, domain records, and MySQL persistence flow.
+The PlantUML sources and SVG exports describe the implemented staff role, Servlet endpoints, services, DAOs, domain records, and PostgreSQL persistence flow.
 
 Assumptions:
 

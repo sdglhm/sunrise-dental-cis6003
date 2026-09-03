@@ -1,24 +1,17 @@
 # Requirements
 
-The system supports authorised staff login, appointment registration and management, conflict prevention, billing, reports, help and secure logout. The full agreed requirement list is maintained in the project brief and will be traced to implementation as milestones are completed.
+The application provides authenticated staff access to appointment registration, search, display, editing, cancellation, billing, reports, help, and logout.
 
-## Implemented API
+## Business rules
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| POST | `/api/auth/login` | Starts a staff session |
-| POST | `/api/auth/logout` | Invalidates the current session |
-| GET | `/api/auth/session` | Returns session status |
-| GET/POST | `/api/appointments` | Lists/creates appointments |
-| GET/PUT/DELETE | `/api/appointments/{number}` | Finds, edits or cancels an appointment |
-| GET | `/api/appointments/{number}/bill-preview` | Calculates a bill preview |
-| POST | `/api/appointments/{number}/bill` | Generates a bill |
-| GET/POST | `/api/catalog/dentists` | Lists active dentists or adds a dentist |
-| GET/POST | `/api/catalog/treatments` | Lists active treatments or adds a treatment |
-| GET/POST | `/api/patients` | Searches/lists or adds patients |
-| GET/PUT | `/api/patients/{id}` | Views or updates a patient |
-| GET | `/api/reports/daily`, `/dentists`, `/treatments`, `/revenue` | Returns report data |
+- Users must be active and provide matching hashed credentials.
+- Patient name, address, contact number, dentist, treatment, date, and time are required.
+- Dentist and treatment selections must exist and be active.
+- Appointment dates cannot be in the past.
+- An active dentist slot cannot be booked twice.
+- Cancellation preserves appointment history.
+- Billing uses the stored treatment price and consultation fee with `BigDecimal` arithmetic.
+- One persistent bill is allowed per appointment.
+- Protected pages and API endpoints require an authenticated session.
 
-## Technology
-
-Java 17, Maven WAR, Jakarta Servlets on Tomcat, JDBC, Jackson, JUnit 5 and vanilla HTML/CSS/JavaScript. The sibling demonstration project is configured for PostgreSQL 16; the original project remains configured for MySQL 8.
+The current API inventory is maintained in the project README. Code-aligned diagrams are in `docs/uml/`.

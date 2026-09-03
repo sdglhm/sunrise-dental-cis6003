@@ -4,13 +4,13 @@ participant "Login UI" as UI
 participant AuthServlet
 participant AuthenticationService as Service
 participant UserDao
-database MySQL
+database PostgreSQL
 Staff -> UI: Enter username and password
 UI -> AuthServlet: POST /api/auth/login
 AuthServlet -> Service: authenticate(username, password)
 Service -> UserDao: findByUsername(username)
-UserDao -> MySQL: SELECT user
-MySQL --> UserDao: User row or empty
+UserDao -> PostgreSQL: SELECT user
+PostgreSQL --> UserDao: User row or empty
 UserDao --> Service: Optional<User>
 alt active user and password matches
   Service --> AuthServlet: User
