@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+actor "Clinic Staff" as Staff
+rectangle "Sunrise Dental Clinic" {
+  usecase "Log in" as Login
+  usecase "Register appointment" as Register
+  usecase "Check dentist availability" as Availability
+  usecase "Search appointment" as Search
+  usecase "View appointment" as View
+  usecase "Update appointment" as Update
+  usecase "Cancel appointment" as Cancel
+  usecase "Calculate bill" as Calculate
+  usecase "Generate bill" as Generate
+  usecase "Print receipt" as Print
+  usecase "View reports" as Reports
+  usecase "View help" as Help
+  usecase "Log out" as Logout
+}
+Staff --> Login
+Staff --> Register
+Staff --> Search
+Staff --> Update
+Staff --> Cancel
+Staff --> Generate
+Staff --> Print
+Staff --> Reports
+Staff --> Help
+Staff --> Logout
+Register .> Availability : <<include>>
+Search .> View : <<include>>
+Update .> Availability : <<include>>
+Generate .> Calculate : <<include>>
+Print .> Generate : <<extend>>
+@enduml

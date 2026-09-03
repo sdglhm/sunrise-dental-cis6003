@@ -1,0 +1,33 @@
+@startuml
+actor "Clinic Staff" as Staff
+participant "Appointment UI" as UI
+participant AppointmentServlet
+participant AppointmentService as Service
+participant CatalogDao
+participant AppointmentDao
+database MySQL
+Staff -> UI: Submit patient and booking details
+UI -> AppointmentServlet: POST /api/appointments
+AppointmentServlet -> Service: create(request)
+Service -> Service: validate patient, contact, date, time
+Service -> CatalogDao: find dentist and treatment
+CatalogDao -> MySQL: SELECT active catalog records
+MySQL --> CatalogDao: Dentist and treatment
+Service -> AppointmentDao: hasActiveSlot(dentist, date, time)
+AppointmentDao -> MySQL: SELECT active slot
+alt slot already occupied
+  MySQL --> AppointmentDao: Match
+  AppointmentDao --> Service: true
+  Service --> AppointmentServlet: ConflictException
+  AppointmentServlet --> UI: 409 conflict message
+else slot available
+  MySQL --> AppointmentDao: Empty
+  AppointmentDao --> Service: false
+  Service -> AppointmentDao: save(appointment)
+  AppointmentDao -> MySQL: INSERT patient and appointment
+  MySQL --> AppointmentDao: Generated IDs
+  AppointmentDao --> Service: Appointment
+  Service --> AppointmentServlet: Appointment
+  AppointmentServlet --> UI: 201 appointment details
+end
+@enduml

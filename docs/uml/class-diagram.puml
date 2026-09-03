@@ -1,0 +1,105 @@
+@startuml
+skinparam classAttributeIconSize 0
+enum AppointmentStatus {
+  ACTIVE
+  CANCELLED
+}
+class User <<record>> {
+  +id: long
+  +username: String
+  +passwordHash: String
+  +fullName: String
+  +active: boolean
+}
+class Patient <<record>> {
+  +id: long
+  +fullName: String
+  +address: String
+  +contactNumber: String
+}
+class Dentist <<record>> {
+  +id: long
+  +fullName: String
+  +active: boolean
+}
+class Treatment <<record>> {
+  +id: long
+  +name: String
+  +price: BigDecimal
+  +active: boolean
+}
+class Appointment <<record>> {
+  +id: long
+  +appointmentNumber: String
+  +date: LocalDate
+  +time: LocalTime
+  +status: AppointmentStatus
+}
+class Bill <<record>> {
+  +id: long
+  +billNumber: String
+  +appointmentId: long
+  +totalAmount: BigDecimal
+  +generatedAt: LocalDateTime
+}
+class AuthenticationService {
+  +authenticate(username, password): User
+}
+class AppointmentService {
+  +create(request): Appointment
+  +get(number): Appointment
+  +update(number, request): Appointment
+  +cancel(number): void
+  +list(date, dentistId): List
+}
+class BillingService {
+  +preview(number): BillingPreview
+  +generate(number): BillGeneration
+  +get(number): BillReceipt
+}
+class ReportService {
+  +daily(date): List
+  +dentists(): List
+  +treatments(): List
+  +revenue(): List
+  +summary(): DashboardSummary
+}
+interface UserDao {
+  +findByUsername(username): Optional
+}
+interface AppointmentDao {
+  +findByNumber(number): Optional
+  +hasActiveSlot(dentistId, date, time, excluding): boolean
+  +save(appointment): Appointment
+  +update(appointment): Appointment
+  +cancel(number): void
+}
+interface CatalogDao {
+  +findDentist(id): Optional
+  +findTreatment(id): Optional
+  +findActiveDentists(): List
+  +findActiveTreatments(): List
+}
+interface BillDao {
+  +findByAppointmentId(id): Optional
+  +save(bill): Bill
+}
+interface ReportDao {
+  +daily(date): List
+  +dentists(): List
+  +treatments(): List
+  +revenue(): List
+  +summary(today): DashboardSummary
+}
+Appointment "1" *-- "1" Patient
+Appointment "0..*" --> "1" Dentist
+Appointment "0..*" --> "1" Treatment
+Appointment --> AppointmentStatus
+Bill "0..1" --> "1" Appointment
+AuthenticationService --> UserDao
+AppointmentService --> AppointmentDao
+AppointmentService --> CatalogDao
+BillingService --> AppointmentService
+BillingService --> BillDao
+ReportService --> ReportDao
+@enduml

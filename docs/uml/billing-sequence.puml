@@ -1,0 +1,35 @@
+@startuml
+actor "Clinic Staff" as Staff
+participant "Receipt UI" as UI
+participant AppointmentServlet
+participant BillingService as Service
+participant AppointmentService
+participant BillDao
+participant ClinicSettingsDao
+database MySQL
+Staff -> UI: Open bill
+UI -> AppointmentServlet: POST /api/appointments/{number}/bill
+AppointmentServlet -> Service: generate(number)
+Service -> AppointmentService: get(number)
+AppointmentService --> Service: Appointment with treatment price
+Service -> BillDao: findByAppointmentId(id)
+BillDao -> MySQL: SELECT bill
+alt bill already exists
+  MySQL --> BillDao: Bill
+  BillDao --> Service: Existing bill
+  Service --> AppointmentServlet: BillGeneration(created=false)
+  AppointmentServlet --> UI: 200 persisted receipt
+else new bill
+  MySQL --> BillDao: Empty
+  Service -> ClinicSettingsDao: consultationFee()
+  ClinicSettingsDao -> MySQL: SELECT consultation fee
+  MySQL --> ClinicSettingsDao: Fee
+  Service -> Service: treatment price + consultation fee
+  Service -> BillDao: save(bill)
+  BillDao -> MySQL: INSERT bill
+  MySQL --> BillDao: Bill ID
+  Service --> AppointmentServlet: BillGeneration(created=true)
+  AppointmentServlet --> UI: 201 persisted receipt
+end
+UI -> UI: Display or print receipt
+@enduml

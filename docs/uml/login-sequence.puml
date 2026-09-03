@@ -1,0 +1,23 @@
+@startuml
+actor "Clinic Staff" as Staff
+participant "Login UI" as UI
+participant AuthServlet
+participant AuthenticationService as Service
+participant UserDao
+database MySQL
+Staff -> UI: Enter username and password
+UI -> AuthServlet: POST /api/auth/login
+AuthServlet -> Service: authenticate(username, password)
+Service -> UserDao: findByUsername(username)
+UserDao -> MySQL: SELECT user
+MySQL --> UserDao: User row or empty
+UserDao --> Service: Optional<User>
+alt active user and password matches
+  Service --> AuthServlet: User
+  AuthServlet -> AuthServlet: rotate session ID and store user
+  AuthServlet --> UI: 200 staff profile
+else invalid, inactive, or wrong password
+  Service --> AuthServlet: InvalidCredentialsException
+  AuthServlet --> UI: 401 generic error
+end
+@enduml
