@@ -13,6 +13,10 @@ function item(label, value) {
     return wrapper;
 }
 
+function currency(value) {
+    return `Rs. ${Number(value).toLocaleString('en-LK', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+}
+
 async function generateBill() {
     if (!number) throw Error('Appointment number is required.');
     const response = await fetch(`api/appointments/${encodeURIComponent(number)}/bill`, {method: 'POST'});
@@ -24,10 +28,10 @@ async function generateBill() {
         item('Patient', bill.patientName),
         item('Dentist', bill.dentistName),
         item('Treatment', bill.treatmentName),
-        item('Treatment price', `Rs. ${bill.treatmentPrice}`),
-        item('Consultation fee', `Rs. ${bill.consultationFee}`),
-        item('Total', `Rs. ${bill.totalAmount}`),
-        item('Generated', bill.generatedAt.replace('T', ' '))
+        item('Treatment price', currency(bill.treatmentPrice)),
+        item('Consultation fee', currency(bill.consultationFee)),
+        item('Total', currency(bill.totalAmount)),
+        item('Generated', new Date(bill.generatedAt).toLocaleString('en-LK'))
     );
     printButton.classList.remove('hidden');
 }

@@ -1,1 +1,20 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Receipt - Sunrise Dental</title><link rel="stylesheet" href="assets/style.css"></head><body><main class="receipt"><h1>Sunrise Dental Clinic</h1><h2>Bill receipt</h2><dl id="receipt"><div><dt>Status</dt><dd>Preparing bill...</dd></div></dl><p id="receiptError" class="error" aria-live="polite"></p><button id="printReceipt" class="hidden" type="button">Print receipt</button><a href="index.html">Back to appointments</a></main><script src="assets/receipt.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Receipt - Sunrise Dental</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main class="receipt">
+    <p class="eyebrow">Sunrise Dental Clinic</p>
+    <h1>Bill receipt</h1>
+    <h2>Appointment treatment and consultation charges</h2>
+    <dl id="receipt"><div><dt>Status</dt><dd>Preparing bill...</dd></div></dl>
+    <p id="receiptError" class="form-message error" aria-live="polite"></p>
+    <div class="receipt-actions"><button id="printReceipt" class="hidden" type="button">Print receipt</button><a class="button-link button-secondary" href="index.html">Back to appointments</a></div>
+</main>
+<script src="assets/receipt.js"></script>
+</body>
+</html>

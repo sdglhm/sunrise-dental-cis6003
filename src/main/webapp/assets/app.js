@@ -1,22 +1,316 @@
-const $=s=>document.querySelector(s);const api=(url,options={})=>fetch(url,{headers:{'Content-Type':'application/json',...options.headers},...options}).then(async r=>{let b=await r.json();if(!r.ok)throw Error(b.error||'Request failed');return b});
-const escapeHtml=value=>String(value).replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
-const formatDate=value=>Array.isArray(value)?value.map((part,index)=>index===0?part:String(part).padStart(2,'0')).join('-'):value;
-const formatTime=value=>Array.isArray(value)?value.map(part=>String(part).padStart(2,'0')).join(':'):value;
-let editingNumber=null;let editingPatientId=null;
-function options(select,items,label,placeholder='Select an option'){select.innerHTML=`<option value="">${placeholder}</option>`;items.forEach(item=>{let option=document.createElement('option');option.value=item.id;option.textContent=label(item);select.append(option)});}
-async function loadCatalogue(){let [dentists,treatments]=await Promise.all([api('api/catalog/dentists'),api('api/catalog/treatments')]);options($('#dentistId'),dentists,d=>d.fullName,'Select a dentist');options($('#filterDentist'),dentists,d=>d.fullName,'All dentists');options($('#treatmentId'),treatments,t=>`${t.name} (Rs. ${t.price})`,'Select a treatment');}
-async function loadPatientOptions(){let patients=await api('api/patients');options($('#patientId'),patients,patient=>`${patient.fullName} (${patient.contactNumber})`,'Create new patient during appointment');}
-function showApp(user){$('#login').classList.add('hidden');$('#app').classList.remove('hidden');$('#staff').textContent=user.fullName;Promise.all([load(),loadCatalogue(),loadPatients(),loadPatientOptions()]).catch(e=>$('#message').textContent=e.message);}
-async function load(){try{let parameters=new URLSearchParams(new FormData($('#filterForm')));let query=parameters.toString();let list=await api('api/appointments'+(query?'?'+query:''));$('#rows').innerHTML=list.map(a=>`<tr><td>${a.appointmentNumber}</td><td>${a.patient.fullName}</td><td>${a.dentist.fullName}</td><td>${formatDate(a.date)} ${formatTime(a.time)}</td><td>${a.status}</td></tr>`).join('')}catch(e){$('#message').textContent=e.message}}
-async function loadPatients(){try{let search=new FormData($('#patientSearchForm')).get('search');let patients=await api('api/patients'+(search?'?search='+encodeURIComponent(search):''));$('#patientRows').innerHTML=patients.map(patient=>`<tr><td>${escapeHtml(patient.fullName)}</td><td>${escapeHtml(patient.address)}</td><td>${escapeHtml(patient.contactNumber)}</td><td><button data-patient-id="${patient.id}" type="button">Edit</button></td></tr>`).join('');document.querySelectorAll('[data-patient-id]').forEach(button=>button.onclick=()=>editPatient(button.dataset.patientId));}catch(error){$('#patientMessage').textContent=error.message}}
-function resetPatientForm(){editingPatientId=null;$('#patientForm').reset();$('#patientSubmit').textContent='Add patient';$('#cancelPatientEdit').classList.add('hidden');}
-async function editPatient(id){try{let patient=await api('api/patients/'+encodeURIComponent(id));editingPatientId=patient.id;let form=$('#patientForm');form.fullName.value=patient.fullName;form.address.value=patient.address;form.contactNumber.value=patient.contactNumber;$('#patientSubmit').textContent='Save patient';$('#cancelPatientEdit').classList.remove('hidden');form.scrollIntoView({behavior:'smooth'});}catch(error){$('#patientMessage').textContent=error.message}}
-function resetAppointmentForm(){editingNumber=null;$('#appointmentForm').reset();$('#appointmentHeading').textContent='Register appointment';$('#appointmentSubmit').textContent='Save appointment';$('#cancelEdit').classList.add('hidden');}
-function beginEdit(a){editingNumber=a.appointmentNumber;let form=$('#appointmentForm');form.patientId.value=a.patient.id;form.patientName.value=a.patient.fullName;form.address.value=a.patient.address;form.contactNumber.value=a.patient.contactNumber;form.dentistId.value=a.dentist.id;form.treatmentId.value=a.treatment.id;form.appointmentDate.value=formatDate(a.date);form.appointmentTime.value=formatTime(a.time);$('#appointmentHeading').textContent='Edit appointment '+a.appointmentNumber;$('#appointmentSubmit').textContent='Save changes';$('#cancelEdit').classList.remove('hidden');form.scrollIntoView({behavior:'smooth'});}
-function showSearchResult(a){let actions=a.status==='ACTIVE'?'<button id="editAppointment" type="button">Edit appointment</button> <button id="cancelAppointment" type="button">Cancel appointment</button> <button id="previewBill" type="button">Preview bill</button>':'';$('#searchResult').innerHTML=`<h3>${escapeHtml(a.appointmentNumber)}</h3><p><strong>Patient:</strong> ${escapeHtml(a.patient.fullName)}</p><p><strong>Address:</strong> ${escapeHtml(a.patient.address)}</p><p><strong>Contact:</strong> ${escapeHtml(a.patient.contactNumber)}</p><p><strong>Dentist:</strong> ${escapeHtml(a.dentist.fullName)}</p><p><strong>Treatment:</strong> ${escapeHtml(a.treatment.name)}</p><p><strong>Date and time:</strong> ${escapeHtml(formatDate(a.date))} ${escapeHtml(formatTime(a.time))}</p><p><strong>Status:</strong> ${escapeHtml(a.status)}</p>${actions}<div id="billPreview"></div>`;$('#searchResult').classList.remove('hidden');if(a.status==='ACTIVE'){$('#editAppointment').onclick=()=>beginEdit(a);$('#cancelAppointment').onclick=()=>cancelAppointment(a.appointmentNumber);$('#previewBill').onclick=()=>previewBill(a.appointmentNumber);}}
-async function cancelAppointment(number){if(!confirm('Cancel appointment '+number+'?'))return;try{let result=await api('api/appointments/'+encodeURIComponent(number),{method:'DELETE'});$('#searchMessage').textContent=result.message;showSearchResult(await api('api/appointments/'+encodeURIComponent(number)));load()}catch(error){$('#searchMessage').textContent=error.message}}
-async function previewBill(number){try{let bill=await api('api/appointments/'+encodeURIComponent(number)+'/bill-preview');$('#billPreview').innerHTML=`<h3>Bill preview</h3><p>Treatment: Rs. ${escapeHtml(bill.treatmentPrice)}</p><p>Consultation fee: Rs. ${escapeHtml(bill.consultationFee)}</p><p><strong>Total: Rs. ${escapeHtml(bill.totalAmount)}</strong></p><button id="generateBill" type="button">Generate bill and open receipt</button>`;$('#generateBill').onclick=()=>generateBill(number)}catch(error){$('#searchMessage').textContent=error.message}}
-async function generateBill(number){try{await api('api/appointments/'+encodeURIComponent(number)+'/bill',{method:'POST'});location.href='receipt.html?appointmentNumber='+encodeURIComponent(number)}catch(error){$('#searchMessage').textContent=error.message}}
-function showReport(rows){if(!rows.length){$('#reportResult').innerHTML='<p>No data found.</p>';return;}let headings=Object.keys(rows[0]);$('#reportResult').innerHTML=`<table><thead><tr>${headings.map(heading=>`<th>${escapeHtml(heading)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${headings.map(heading=>`<td>${escapeHtml(row[heading])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;}
-async function loadReport(name){try{let url='api/reports/'+name;if(name==='daily'&&$('#reportDate').value)url+='?date='+encodeURIComponent($('#reportDate').value);$('#reportMessage').textContent='';showReport(await api(url))}catch(error){$('#reportMessage').textContent=error.message}}
-api('api/auth/session').then(showApp).catch(()=>{});$('#loginForm').onsubmit=async e=>{e.preventDefault();try{showApp(await api('api/auth/login',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(e.target))) }))}catch(x){$('#loginError').textContent=x.message}};$('#appointmentForm').onsubmit=async e=>{e.preventDefault();try{let x=Object.fromEntries(new FormData(e.target));x.patientId=x.patientId?+x.patientId:null;x.dentistId=+x.dentistId;x.treatmentId=+x.treatmentId;let method=editingNumber?'PUT':'POST';let url=editingNumber?'api/appointments/'+encodeURIComponent(editingNumber):'api/appointments';let a=await api(url,{method,body:JSON.stringify(x)});$('#message').textContent=(editingNumber?'Updated: ':'Saved: ')+a.appointmentNumber;resetAppointmentForm();load()}catch(x){$('#message').textContent=x.message}};$('#dentistForm').onsubmit=async e=>{e.preventDefault();try{let dentist=await api('api/catalog/dentists',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});$('#catalogueMessage').textContent='Added doctor: '+dentist.fullName;e.target.reset();await loadCatalogue()}catch(x){$('#catalogueMessage').textContent=x.message}};$('#treatmentForm').onsubmit=async e=>{e.preventDefault();try{let x=Object.fromEntries(new FormData(e.target));x.price=+x.price;let treatment=await api('api/catalog/treatments',{method:'POST',body:JSON.stringify(x)});$('#catalogueMessage').textContent='Added treatment: '+treatment.name;e.target.reset();await loadCatalogue()}catch(x){$('#catalogueMessage').textContent=x.message}};$('#patientForm').onsubmit=async e=>{e.preventDefault();try{let method=editingPatientId?'PUT':'POST';let url=editingPatientId?'api/patients/'+editingPatientId:'api/patients';let patient=await api(url,{method,body:JSON.stringify(Object.fromEntries(new FormData(e.target)))});$('#patientMessage').textContent=(editingPatientId?'Updated: ':'Added: ')+patient.fullName;resetPatientForm();await Promise.all([loadPatients(),loadPatientOptions()])}catch(error){$('#patientMessage').textContent=error.message}};$('#patientSearchForm').onsubmit=e=>{e.preventDefault();loadPatients()};$('#patientId').onchange=async e=>{if(!e.target.value)return;try{let patient=await api('api/patients/'+encodeURIComponent(e.target.value));let form=$('#appointmentForm');form.patientName.value=patient.fullName;form.address.value=patient.address;form.contactNumber.value=patient.contactNumber;}catch(error){$('#message').textContent=error.message}};$('#searchForm').onsubmit=async e=>{e.preventDefault();try{$('#searchMessage').textContent='';showSearchResult(await api('api/appointments/'+encodeURIComponent(new FormData(e.target).get('appointmentNumber'))))}catch(x){$('#searchResult').classList.add('hidden');$('#searchMessage').textContent=x.message}};$('#filterForm').onsubmit=e=>{e.preventDefault();load()};$('#clearFilters').onclick=()=>{$('#filterForm').reset();load()};document.querySelectorAll('[data-report]').forEach(button=>button.onclick=()=>loadReport(button.dataset.report));$('#cancelEdit').onclick=resetAppointmentForm;$('#cancelPatientEdit').onclick=resetPatientForm;$('#load').onclick=load;$('#logout').onclick=async()=>{await api('api/auth/logout',{method:'POST'});location.reload()};
+const $ = selector => document.querySelector(selector);
+let currentAppointment = null;
+
+const api = (url, options = {}) => fetch(url, {
+    headers: {'Content-Type': 'application/json'},
+    ...options
+}).then(async response => {
+    const body = await response.json();
+    if (!response.ok) throw Error(body.error || 'Request failed');
+    return body;
+});
+
+function option(select, value, label) {
+    const item = document.createElement('option');
+    item.value = value;
+    item.textContent = label;
+    select.append(item);
+}
+
+function cell(row, value) {
+    const item = document.createElement('td');
+    item.textContent = value;
+    row.append(item);
+}
+
+function detail(label, value) {
+    const wrapper = document.createElement('div');
+    const term = document.createElement('dt');
+    const description = document.createElement('dd');
+    term.textContent = label;
+    description.textContent = value;
+    wrapper.append(term, description);
+    return wrapper;
+}
+
+function showMessage(message, error = false) {
+    const element = $('#message');
+    element.textContent = message;
+    element.classList.toggle('error', error);
+    element.classList.toggle('success', !error && Boolean(message));
+}
+
+function currency(value) {
+    return `Rs. ${Number(value).toLocaleString('en-LK', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+}
+
+function reportRows(selector, rows, fields) {
+    const body = $(selector);
+    body.replaceChildren();
+    if (!rows.length) {
+        const row = document.createElement('tr');
+        const empty = document.createElement('td');
+        empty.colSpan = fields.length;
+        empty.textContent = 'No report data for this selection.';
+        row.append(empty);
+        body.append(row);
+        return;
+    }
+    rows.forEach(item => {
+        const row = document.createElement('tr');
+        fields.forEach(field => cell(row, field.format ? field.format(item[field.name]) : item[field.name]));
+        body.append(row);
+    });
+}
+
+async function loadSummary() {
+    const summary = await api('api/reports/summary');
+    $('#todayAppointments').textContent = summary.todayAppointments;
+    $('#activeAppointments').textContent = summary.activeAppointments;
+    $('#cancelledAppointments').textContent = summary.cancelledAppointments;
+    $('#billsToday').textContent = summary.billsToday;
+    $('#revenueToday').textContent = currency(summary.revenueToday);
+}
+
+async function loadReports(date = '') {
+    const query = date ? `?date=${encodeURIComponent(date)}` : '';
+    const [daily, dentists, treatments, revenue] = await Promise.all([
+        api(`api/reports/daily${query}`),
+        api('api/reports/dentists'),
+        api('api/reports/treatments'),
+        api('api/reports/revenue')
+    ]);
+    reportRows('#dailyReportRows', daily, [{name: 'date'}, {name: 'appointments'}]);
+    reportRows('#dentistReportRows', dentists, [{name: 'dentist'}, {name: 'appointments'}]);
+    reportRows('#treatmentReportRows', treatments, [{name: 'treatment'}, {name: 'appointments'}]);
+    reportRows('#revenueReportRows', revenue, [{name: 'date'}, {name: 'bills'}, {name: 'revenue', format: currency}]);
+}
+
+async function loadCatalog() {
+    const [dentists, treatments] = await Promise.all([
+        api('api/catalog/dentists'),
+        api('api/catalog/treatments')
+    ]);
+    dentists.forEach(dentist => {
+        option($('#dentistId'), dentist.id, dentist.fullName);
+        option($('#editDentistId'), dentist.id, dentist.fullName);
+    });
+    treatments.forEach(treatment => {
+        const label = `${treatment.name} - Rs. ${treatment.price}`;
+        option($('#treatmentId'), treatment.id, label);
+        option($('#editTreatmentId'), treatment.id, label);
+    });
+}
+
+function renderAppointment(appointment) {
+    currentAppointment = appointment;
+    $('#appointmentDetails').replaceChildren(
+        detail('Appointment number', appointment.appointmentNumber),
+        detail('Patient', appointment.patient.fullName),
+        detail('Address', appointment.patient.address),
+        detail('Contact number', appointment.patient.contactNumber),
+        detail('Dentist', appointment.dentist.fullName),
+        detail('Treatment', appointment.treatment.name),
+        detail('Date', new Date(`${appointment.date}T00:00:00`).toLocaleDateString('en-LK')),
+        detail('Time', appointment.time.slice(0, 5)),
+        detail('Status', appointment.status)
+    );
+    $('#appointmentDetail').classList.remove('hidden');
+    $('#editAppointment').classList.toggle('hidden', appointment.status === 'CANCELLED');
+    $('#cancelAppointment').classList.toggle('hidden', appointment.status === 'CANCELLED');
+    let billLink = $('#viewBill');
+    if (!billLink) {
+        billLink = document.createElement('a');
+        billLink.id = 'viewBill';
+        billLink.textContent = 'Open bill';
+        billLink.className = 'button-link button-secondary';
+        $('#appointmentActions').append(billLink);
+    }
+    billLink.href = `receipt.html?appointmentNumber=${encodeURIComponent(appointment.appointmentNumber)}`;
+}
+
+function fillEditForm() {
+    if (!currentAppointment) return;
+    const form = $('#editForm');
+    form.elements.patientName.value = currentAppointment.patient.fullName;
+    form.elements.address.value = currentAppointment.patient.address;
+    form.elements.contactNumber.value = currentAppointment.patient.contactNumber;
+    form.elements.dentistId.value = currentAppointment.dentist.id;
+    form.elements.treatmentId.value = currentAppointment.treatment.id;
+    form.elements.appointmentDate.value = currentAppointment.date;
+    form.elements.appointmentTime.value = currentAppointment.time;
+    $('#editPanel').classList.remove('hidden');
+}
+
+async function findAppointment(number) {
+    const value = number.trim();
+    if (!value) throw Error('Enter an appointment number');
+    const appointment = await api(`api/appointments/${encodeURIComponent(value)}`);
+    renderAppointment(appointment);
+    return appointment;
+}
+
+async function load() {
+    const rows = $('#rows');
+    rows.replaceChildren();
+    try {
+        const appointments = await api('api/appointments');
+        if (!appointments.length) {
+            const row = document.createElement('tr');
+            const empty = document.createElement('td');
+            empty.colSpan = 5;
+            empty.textContent = 'No appointments found.';
+            row.append(empty);
+            rows.append(row);
+            return;
+        }
+        appointments.forEach(appointment => {
+            const row = document.createElement('tr');
+            row.tabIndex = 0;
+            row.addEventListener('click', () => renderAppointment(appointment));
+            row.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') renderAppointment(appointment);
+            });
+            cell(row, appointment.appointmentNumber);
+            cell(row, appointment.patient.fullName);
+            cell(row, appointment.dentist.fullName);
+            cell(row, `${appointment.date} ${appointment.time}`);
+            cell(row, appointment.status);
+            rows.append(row);
+        });
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+}
+
+function showApp(user) {
+    $('#login').classList.add('hidden');
+    $('#app').classList.remove('hidden');
+    $('#staff').textContent = user.fullName;
+    Promise.all([loadCatalog(), load(), loadSummary(), loadReports()]).catch(error => showMessage(error.message, true));
+}
+
+api('api/auth/session').then(showApp).catch(() => {});
+
+$('#loginForm').onsubmit = async event => {
+    event.preventDefault();
+    const button = event.submitter;
+    button.disabled = true;
+    try {
+        showApp(await api('api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(new FormData(event.target)))
+        }));
+    } catch (error) {
+        $('#loginError').textContent = error.message;
+    } finally {
+        button.disabled = false;
+    }
+};
+
+$('#appointmentForm').onsubmit = async event => {
+    event.preventDefault();
+    const button = event.submitter;
+    button.disabled = true;
+    try {
+        const request = Object.fromEntries(new FormData(event.target));
+        request.dentistId = Number(request.dentistId);
+        request.treatmentId = Number(request.treatmentId);
+        const appointment = await api('api/appointments', {method: 'POST', body: JSON.stringify(request)});
+        showMessage(`Saved: ${appointment.appointmentNumber}`);
+        event.target.reset();
+        renderAppointment(appointment);
+        await Promise.all([load(), loadSummary()]);
+    } catch (error) {
+        showMessage(error.message, true);
+    } finally {
+        button.disabled = false;
+    }
+};
+
+$('#searchForm').onsubmit = async event => {
+    event.preventDefault();
+    const button = event.submitter;
+    button.disabled = true;
+    try {
+        await findAppointment(new FormData(event.target).get('appointmentNumber'));
+        showMessage('Appointment found.');
+    } catch (error) {
+        $('#appointmentDetail').classList.add('hidden');
+        showMessage(error.message, true);
+    } finally {
+        button.disabled = false;
+    }
+};
+
+$('#editAppointment').onclick = fillEditForm;
+$('#closeEdit').onclick = () => $('#editPanel').classList.add('hidden');
+
+$('#editForm').onsubmit = async event => {
+    event.preventDefault();
+    if (!currentAppointment) return;
+    const button = event.submitter;
+    button.disabled = true;
+    try {
+        const request = Object.fromEntries(new FormData(event.target));
+        request.dentistId = Number(request.dentistId);
+        request.treatmentId = Number(request.treatmentId);
+        const appointment = await api(`api/appointments/${encodeURIComponent(currentAppointment.appointmentNumber)}`, {
+            method: 'PUT',
+            body: JSON.stringify(request)
+        });
+        renderAppointment(appointment);
+        $('#editPanel').classList.add('hidden');
+        showMessage('Appointment updated.');
+        await Promise.all([load(), loadSummary()]);
+    } catch (error) {
+        showMessage(error.message, true);
+    } finally {
+        button.disabled = false;
+    }
+};
+
+$('#dailyReportForm').onsubmit = async event => {
+    event.preventDefault();
+    const button = event.submitter;
+    button.disabled = true;
+    try {
+        await loadReports(new FormData(event.target).get('date'));
+        showMessage('Reports updated.');
+    } catch (error) {
+        showMessage(error.message, true);
+    } finally {
+        button.disabled = false;
+    }
+};
+
+$('#cancelAppointment').onclick = async () => {
+    if (!currentAppointment || !confirm(`Cancel ${currentAppointment.appointmentNumber}?`)) return;
+    $('#cancelAppointment').disabled = true;
+    try {
+        await api(`api/appointments/${encodeURIComponent(currentAppointment.appointmentNumber)}`, {method: 'DELETE'});
+        const appointment = await api(`api/appointments/${encodeURIComponent(currentAppointment.appointmentNumber)}`);
+        renderAppointment(appointment);
+        showMessage('Appointment cancelled.');
+        await Promise.all([load(), loadSummary()]);
+    } catch (error) {
+        showMessage(error.message, true);
+    } finally {
+        $('#cancelAppointment').disabled = false;
+    }
+};
+
+$('#load').onclick = async event => {
+    event.currentTarget.disabled = true;
+    await load();
+    event.currentTarget.disabled = false;
+};
+$('#logout').onclick = async () => {
+    await api('api/auth/logout', {method: 'POST'});
+    location.reload();
+};
+
+const minimumDate = new Date().toLocaleDateString('en-CA');
+$('#appointmentDate').min = minimumDate;
+$('#editAppointmentDate').min = minimumDate;
+$('#reportDate').value = minimumDate;
