@@ -35,6 +35,32 @@ const Clinic = (() => {
         return `Rs. ${Number(value).toLocaleString('en-LK', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     }
 
+    function isoDate(value) {
+        if (Array.isArray(value)) {
+            return `${value[0]}-${String(value[1]).padStart(2, '0')}-${String(value[2]).padStart(2, '0')}`;
+        }
+        return String(value).slice(0, 10);
+    }
+
+    function date(value) {
+        return new Date(`${isoDate(value)}T00:00:00`).toLocaleDateString('en-LK');
+    }
+
+    function dateTime(value) {
+        if (Array.isArray(value)) {
+            const [year, month, day, hour = 0, minute = 0, second = 0] = value;
+            return new Date(year, month - 1, day, hour, minute, second).toLocaleString('en-LK');
+        }
+        return new Date(value).toLocaleString('en-LK');
+    }
+
+    function time(value) {
+        if (Array.isArray(value)) {
+            return `${String(value[0]).padStart(2, '0')}:${String(value[1] || 0).padStart(2, '0')}`;
+        }
+        return String(value).slice(0, 5);
+    }
+
     async function ready() {
         const user = await api('api/auth/session');
         document.querySelectorAll('[data-staff-name]').forEach(element => element.textContent = user.fullName);
@@ -45,5 +71,5 @@ const Clinic = (() => {
         return user;
     }
 
-    return {api, cell, currency, option, ready, showMessage};
+    return {api, cell, currency, date, dateTime, isoDate, option, ready, showMessage, time};
 })();

@@ -31,7 +31,7 @@ async function generateBill() {
         item('Treatment price', currency(bill.treatmentPrice)),
         item('Consultation fee', currency(bill.consultationFee)),
         item('Total', currency(bill.totalAmount)),
-        item('Generated', new Date(bill.generatedAt).toLocaleString('en-LK'))
+        item('Generated', Clinic.dateTime(bill.generatedAt))
     ].flat());
     printButton.classList.remove('d-none');
 }

@@ -29,10 +29,10 @@ async function loadSummary() {
 async function loadReports(date = '') {
     const query = date ? `?date=${encodeURIComponent(date)}` : '';
     const [daily, dentists, treatments, revenue] = await Promise.all([Clinic.api(`api/reports/daily${query}`), Clinic.api('api/reports/dentists'), Clinic.api('api/reports/treatments'), Clinic.api('api/reports/revenue')]);
-    reportRows('#dailyReportRows', daily, [{name: 'date'}, {name: 'appointments'}]);
+    reportRows('#dailyReportRows', daily, [{name: 'date', format: Clinic.date}, {name: 'appointments'}]);
     reportRows('#dentistReportRows', dentists, [{name: 'dentist'}, {name: 'appointments'}]);
     reportRows('#treatmentReportRows', treatments, [{name: 'treatment'}, {name: 'appointments'}]);
-    reportRows('#revenueReportRows', revenue, [{name: 'date'}, {name: 'bills'}, {name: 'revenue', format: Clinic.currency}]);
+    reportRows('#revenueReportRows', revenue, [{name: 'date', format: Clinic.date}, {name: 'bills'}, {name: 'revenue', format: Clinic.currency}]);
 }
 
 document.querySelector('#dailyReportForm').addEventListener('submit', async event => {

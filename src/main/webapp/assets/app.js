@@ -22,8 +22,8 @@ function renderAppointment(appointment) {
         ['Appointment number', appointment.appointmentNumber], ['Patient', appointment.patient.fullName],
         ['Address', appointment.patient.address], ['Contact number', appointment.patient.contactNumber],
         ['Dentist', appointment.dentist.fullName], ['Treatment', appointment.treatment.name],
-        ['Date', new Date(`${appointment.date}T00:00:00`).toLocaleDateString('en-LK')],
-        ['Time', appointment.time.slice(0, 5)], ['Status', appointment.status]
+        ['Date', Clinic.date(appointment.date)],
+        ['Time', Clinic.time(appointment.time)], ['Status', appointment.status]
     ];
     document.querySelector('#appointmentDetails').replaceChildren(...details.flatMap(item => detail(item[0], item[1])));
     document.querySelector('#appointmentDetail').classList.remove('d-none');
@@ -48,8 +48,8 @@ function fillEditForm() {
     form.elements.contactNumber.value = currentAppointment.patient.contactNumber;
     form.elements.dentistId.value = currentAppointment.dentist.id;
     form.elements.treatmentId.value = currentAppointment.treatment.id;
-    form.elements.appointmentDate.value = currentAppointment.date;
-    form.elements.appointmentTime.value = currentAppointment.time.slice(0, 5);
+    form.elements.appointmentDate.value = Clinic.isoDate(currentAppointment.date);
+    form.elements.appointmentTime.value = Clinic.time(currentAppointment.time);
     document.querySelector('#editPanel').classList.remove('d-none');
 }
 
@@ -83,7 +83,7 @@ async function load() {
         Clinic.cell(row, appointment.appointmentNumber);
         Clinic.cell(row, appointment.patient.fullName);
         Clinic.cell(row, appointment.dentist.fullName);
-        Clinic.cell(row, `${appointment.date} ${appointment.time.slice(0, 5)}`);
+        Clinic.cell(row, `${Clinic.date(appointment.date)} ${Clinic.time(appointment.time)}`);
         Clinic.cell(row, appointment.status);
         body.append(row);
     });
