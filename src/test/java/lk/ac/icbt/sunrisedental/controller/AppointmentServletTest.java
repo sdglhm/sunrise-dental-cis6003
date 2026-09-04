@@ -70,6 +70,7 @@ class AppointmentServletTest {
         servlet.doPost(ServletTestSupport.request("/APT-001/bill"), response.response());
         assertEquals(201, response.status().get());
         assertTrue(response.body().toString().contains("BILL-12345678"));
+        assertTrue(response.body().toString().contains("\"generatedAt\":\""));
     }
 
     @Test void returnsControlledServerError() throws Exception {
